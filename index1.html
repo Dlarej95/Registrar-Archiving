@@ -1,0 +1,2994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Registrar-Archiving — Student Records Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0B1D3A;--navy2:#112348;--navy3:#1A3060;--navy4:#22407A;
+  --gold:#C49A22;--gold2:#D4AC3A;--gold3:#F0D878;--gold4:#FDF3CC;
+  --cream:#F7F3EC;--cream2:#EDE7DA;--cream3:#DDD5C5;--cream4:#C9BDA8;
+  --ink:#1A130A;--ink2:#3A2D1E;--ink3:#6B5B48;--ink4:#9A8A78;
+  --g2:#166534;--g3:#DCFCE7;--r2:#B91C1C;--r3:#FEE2E2;
+  --b2:#2563EB;--b3:#DBEAFE;--v2:#7C3AED;--v3:#EDE9FE;
+  --a2:#D97706;--a3:#FEF3C7;--t2:#0891B2;--t3:#CFFAFE;
+  --r:8px;--rlg:14px;
+  --sh:0 2px 8px rgba(10,18,35,.08);
+  --sh2:0 4px 20px rgba(10,18,35,.13);
+}
+html{font-size:15px}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:var(--cream3);border-radius:99px}
+
+/* ══ LOGIN ══════════════════════════════════════════════ */
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,#0B1D3A 0%,#1A3060 100%);display:flex;align-items:center;justify-content:center;z-index:999;transition:opacity .45s}
+#loginScreen.hide{opacity:0;pointer-events:none}
+.lbox{width:440px;max-width:95vw}
+.lhdr{text-align:center;margin-bottom:2rem}
+.lcrest{width:74px;height:74px;border-radius:50%;background:rgba(212,172,58,.1);border:2px solid rgba(212,172,58,.3);display:flex;align-items:center;justify-content:center;font-size:2.1rem;margin:0 auto .9rem}
+.lhdr h1{font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold3);letter-spacing:-.5px}
+.lhdr p{color:rgba(200,189,168,.45);font-size:.83rem;margin-top:.2rem}
+.lcard{background:rgba(255,255,255,.05);border:1px solid rgba(212,172,58,.18);border-radius:var(--rlg);padding:2rem}
+.lg{margin-bottom:.9rem}
+.lg label{display:block;font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:rgba(200,189,168,.45);margin-bottom:.38rem}
+.lg input,.lg select{width:100%;padding:.7rem 1rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:var(--r);color:#fff;font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none;transition:border-color .2s}
+.lg input:focus,.lg select:focus{border-color:var(--gold2)}
+.lg input::placeholder{color:rgba(130,120,110,.4)}
+.lg select option{background:#112348}
+.lbtn{width:100%;padding:.8rem;background:var(--gold2);border:none;border-radius:var(--r);color:var(--navy);font-weight:700;font-size:.9rem;cursor:pointer;margin-top:.25rem;letter-spacing:.3px}
+.lbtn:hover{background:var(--gold3)}
+.lerr{background:rgba(185,28,28,.15);border:1px solid rgba(185,28,28,.3);border-radius:var(--r);padding:.6rem .9rem;margin-top:.75rem;font-size:.8rem;color:#fca5a5;display:none}
+.qr-btns{display:flex;gap:.4rem;margin-top:.6rem}
+.qrbtn{flex:1;padding:.4rem .2rem;border:1px solid rgba(212,172,58,.15);background:transparent;border-radius:6px;color:rgba(150,140,130,.5);font-size:.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:center}
+.qrbtn:hover,.qrbtn.on{background:rgba(212,172,58,.12);border-color:var(--gold2);color:var(--gold3)}
+.lhint{text-align:center;font-size:.74rem;color:rgba(150,140,130,.4);margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.06)}
+.lhint strong{color:var(--gold4)}
+
+/* ══ APP SHELL ══════════════════════════════════════════ */
+#app{display:none;height:100vh;grid-template-columns:248px 1fr;grid-template-rows:56px 1fr;overflow:hidden}
+#app.on{display:grid}
+
+/* ══ TOPBAR ═════════════════════════════════════════════ */
+.topbar{grid-column:1/-1;background:var(--navy);display:flex;align-items:center;padding:0 1.25rem;gap:.875rem;border-bottom:1px solid rgba(212,172,58,.1);z-index:100}
+.tlogo{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gold3);display:flex;align-items:center;gap:.45rem;flex-shrink:0}
+.resp-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:.875rem}
+.tlogo-ico{width:29px;height:29px;background:rgba(212,172,58,.1);border:1px solid rgba(212,172,58,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.tsearch{flex:1;max-width:380px;position:relative}
+.tsearch input{width:100%;padding:.43rem .875rem .43rem 2.2rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);border-radius:99px;color:#fff;font-size:.81rem;font-family:'DM Sans',sans-serif;outline:none}
+.tsearch input:focus{border-color:var(--gold2)}
+.tsearch input::placeholder{color:rgba(130,120,110,.4)}
+.tsearch-ico{position:absolute;left:.68rem;top:50%;transform:translateY(-50%);font-size:.8rem;opacity:.3;pointer-events:none}
+.tright{margin-left:auto;display:flex;align-items:center;gap:.55rem}
+.tnotif{position:relative;width:33px;height:33px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;color:rgba(200,189,168,.55);transition:all .15s}
+.tnotif:hover{background:rgba(255,255,255,.14);color:#fff}
+.nbadge{position:absolute;top:4px;right:4px;width:7px;height:7px;background:#EF4444;border-radius:50%;border:1.5px solid var(--navy);display:none}
+.tuser{display:flex;align-items:center;gap:.45rem;padding:.25rem .65rem .25rem .3rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);border-radius:99px}
+.tav{width:26px;height:26px;background:var(--gold2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:var(--navy);flex-shrink:0}
+.tname{font-size:.76rem;color:#fff;font-weight:500}
+.trole{font-size:.66rem;color:rgba(180,170,160,.45)}
+.trole.admin{color:var(--gold3)}
+.trole.staff{color:#93c5fd}
+.tout{padding:.3rem .7rem;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:6px;color:rgba(180,170,160,.55);font-size:.73rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.tout:hover{border-color:var(--r2);color:#fca5a5}
+
+/* ══ SIDEBAR ════════════════════════════════════════════ */
+.sidebar{background:var(--navy2);border-right:1px solid rgba(212,172,58,.08);display:flex;flex-direction:column;overflow:hidden}
+.sbody{flex:1;overflow-y:auto;padding:.875rem 0}
+.ssec{padding:0 .75rem;margin-bottom:1rem}
+.slbl{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:rgba(180,170,160,.3);padding:.2rem .55rem;margin-bottom:.15rem}
+.ni{display:flex;align-items:center;gap:.55rem;padding:.52rem .55rem;border-radius:var(--r);cursor:pointer;color:rgba(180,170,160,.58);font-size:.83rem;font-weight:500;position:relative;transition:all .15s;user-select:none}
+.ni:hover{background:rgba(255,255,255,.05);color:rgba(240,230,220,.85)}
+.ni.on{background:rgba(212,172,58,.13);color:var(--gold3)}
+.ni.on::before{content:'';position:absolute;left:0;top:18%;height:64%;width:3px;background:var(--gold2);border-radius:0 3px 3px 0}
+.ni-ico{width:18px;text-align:center;font-size:.875rem;flex-shrink:0}
+.ni-lbl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ni-badge{font-size:.61rem;font-weight:700;padding:.1rem .36rem;border-radius:99px;background:#EF4444;color:#fff;flex-shrink:0}
+.sfooter{padding:.75rem;border-top:1px solid rgba(255,255,255,.05)}
+.sinfo{font-size:.72rem;color:rgba(150,140,130,.35);text-align:center;line-height:1.5}
+.s-divider{border:none;border-top:1px solid rgba(255,255,255,.05);margin:.35rem .75rem}
+
+/* ══ MAIN / PAGES ════════════════════════════════════════ */
+.main{background:var(--cream);overflow-y:auto;padding:1.375rem;position:relative}
+.page{display:none;animation:pgin .22s ease}
+.page.on{display:block}
+@keyframes pgin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ PAGE HEADER ═════════════════════════════════════════ */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.25rem}
+.ph-left h2{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--navy);letter-spacing:-.3px}
+.ph-left p{font-size:.82rem;color:var(--ink3);margin-top:.15rem}
+.ph-right{display:flex;gap:.45rem;flex-wrap:wrap;align-items:center}
+
+/* ══ BUTTONS ═════════════════════════════════════════════ */
+.btn{padding:.44rem .95rem;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-weight:500;font-size:.8rem;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:.32rem;white-space:nowrap;transition:all .15s;line-height:1.4}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy3)}
+.btn-gold{background:var(--gold2);color:var(--navy);font-weight:600}.btn-gold:hover{background:var(--gold3)}
+.btn-out{background:transparent;border:1px solid var(--cream3);color:var(--ink3)}.btn-out:hover{border-color:var(--navy);color:var(--ink);background:var(--cream2)}
+.btn-green{background:var(--g3);color:var(--g2)}.btn-green:hover{background:#bbf7d0}
+.btn-red{background:var(--r3);color:var(--r2)}.btn-red:hover{background:#fecaca}
+.btn-blue{background:var(--b3);color:var(--b2)}.btn-blue:hover{background:#bfdbfe}
+.btn-sm{padding:.28rem .65rem;font-size:.74rem}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* ══ STAT CARDS ══════════════════════════════════════════ */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.875rem;margin-bottom:1.25rem}
+.sc{background:#fff;border-radius:var(--rlg);padding:1rem 1.1rem;border:1px solid var(--cream2);position:relative;overflow:hidden;box-shadow:var(--sh)}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sc.gold::after{background:var(--gold2)}.sc.green::after{background:var(--g2)}.sc.blue::after{background:var(--b2)}
+.sc.red::after{background:var(--r2)}.sc.violet::after{background:var(--v2)}.sc.teal::after{background:var(--t2)}
+.sc-lbl{font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3);margin-bottom:.25rem}
+.sc-val{font-size:1.875rem;font-weight:700;color:var(--navy);font-family:'DM Mono',monospace;line-height:1}
+.sc-sub{font-size:.7rem;color:var(--ink4);margin-top:.15rem}
+.sc-ico{position:absolute;right:.85rem;top:50%;transform:translateY(-50%);font-size:2.1rem;opacity:.06}
+
+/* ══ CARD ════════════════════════════════════════════════ */
+.card{background:#fff;border-radius:var(--rlg);border:1px solid var(--cream2);overflow:hidden;box-shadow:var(--sh)}
+.ch{padding:.8rem 1.1rem;border-bottom:1px solid var(--cream2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.ch h3{font-size:.9rem;font-weight:600;color:var(--navy)}
+.cb{padding:1.1rem}
+
+/* ══ TABLE ════════════════════════════════════════════════ */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.81rem}
+thead th{padding:.62rem .85rem;text-align:left;font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.65px;color:var(--ink3);background:var(--cream);border-bottom:1px solid var(--cream2);white-space:nowrap}
+tbody td{padding:.68rem .85rem;border-bottom:1px solid var(--cream2);color:var(--ink);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(247,243,236,.7)}
+.mono{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--ink3)}
+
+/* ══ BADGES ══════════════════════════════════════════════ */
+.badge{display:inline-flex;align-items:center;padding:.16rem .54rem;border-radius:99px;font-size:.66rem;font-weight:600;white-space:nowrap}
+.bg-green{background:var(--g3);color:var(--g2)}.bg-red{background:var(--r3);color:var(--r2)}
+.bg-blue{background:var(--b3);color:var(--b2)}.bg-gold{background:var(--gold4);color:var(--a2)}
+.bg-violet{background:var(--v3);color:var(--v2)}.bg-slate{background:var(--cream2);color:var(--ink3)}
+.bg-teal{background:var(--t3);color:var(--t2)}
+
+/* ══ FORM FIELDS ═════════════════════════════════════════ */
+.fi{padding:.44rem .85rem;border:1px solid var(--cream3);border-radius:var(--r);font-size:.8rem;font-family:'DM Sans',sans-serif;color:var(--ink);background:#fff;outline:none;transition:border-color .15s}
+.fi:focus{border-color:var(--gold2)}
+.ff{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.8rem}
+.ff label{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3)}
+.ff input,.ff select,.ff textarea{padding:.58rem .85rem;border:1px solid var(--cream3);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:.845rem;color:var(--ink);outline:none;background:#fff;transition:border-color .15s;width:100%}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--gold2)}
+.ff textarea{resize:vertical;min-height:68px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem}
+
+/* ══ MODALS ══════════════════════════════════════════════ */
+.mo{position:fixed;inset:0;background:rgba(10,18,35,.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .2s}
+.mo.open{opacity:1;pointer-events:all}
+.md{background:#fff;border-radius:var(--rlg);width:100%;max-width:540px;max-height:92vh;overflow-y:auto;transform:translateY(12px);transition:transform .2s;box-shadow:var(--sh2)}
+.mo.open .md{transform:translateY(0)}
+.md-lg{max-width:680px}.md-xl{max-width:840px}
+.mh{padding:1rem 1.25rem;border-bottom:1px solid var(--cream2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.mh h3{font-size:.95rem;font-weight:600;color:var(--navy);font-family:'Playfair Display',serif}
+.mcl{width:26px;height:26px;border-radius:50%;border:none;background:var(--cream);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:.85rem;transition:background .15s}
+.mcl:hover{background:var(--cream2)}
+.mb{padding:1.2rem}
+.mfoot{padding:.85rem 1.25rem;border-top:1px solid var(--cream2);display:flex;justify-content:flex-end;gap:.45rem}
+
+/* ══ UPLOAD ZONE ══════════════════════════════════════════ */
+.uz{border:2px dashed var(--cream3);border-radius:var(--rlg);padding:1.75rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--cream);margin-bottom:.75rem}
+.uz:hover,.uz.over{border-color:var(--gold2);background:rgba(212,172,58,.04)}
+.uz-ico{font-size:2.1rem;margin-bottom:.5rem;opacity:.35}
+.uz-txt{font-weight:500;color:var(--ink);margin-bottom:.2rem}
+.uz-sub{font-size:.74rem;color:var(--ink3)}
+.uq{display:flex;flex-direction:column;gap:.4rem}
+.uqr{display:flex;align-items:center;gap:.55rem;padding:.58rem .85rem;background:var(--cream);border-radius:var(--r);border:1px solid var(--cream2)}
+.pbar{height:4px;background:var(--cream2);border-radius:99px;overflow:hidden;margin-top:.22rem}
+.pfill{height:100%;background:var(--gold2);border-radius:99px;transition:width .25s}
+.pfill.done{background:var(--g2)}
+
+/* ══ ACTIVITY TIMELINE ════════════════════════════════════ */
+.tl{display:flex;flex-direction:column}
+.tli{display:flex;gap:.75rem;padding:.5rem 0;position:relative}
+.tli::before{content:'';position:absolute;left:11px;top:26px;bottom:-8px;width:1px;background:var(--cream2)}
+.tli:last-child::before{display:none}
+.tld{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;border:2px solid #fff;flex-shrink:0;margin-top:.1rem}
+.tld.g{background:var(--g3);color:var(--g2)}.tld.b{background:var(--b3);color:var(--b2)}
+.tld.r{background:var(--r3);color:var(--r2)}.tld.v{background:var(--v3);color:var(--v2)}
+.tld.a{background:var(--a3);color:var(--a2)}.tld.t{background:var(--t3);color:var(--t2)}
+.tlc{flex:1}
+.tlt{font-size:.83rem;font-weight:500;color:var(--ink)}
+.tls{font-size:.73rem;color:var(--ink3);margin-top:.1rem}
+.tltime{font-size:.67rem;color:var(--cream4);font-family:'DM Mono',monospace;white-space:nowrap;margin-left:.5rem}
+
+/* ══ STUDENT PROFILE ══════════════════════════════════════ */
+.prof-hdr{background:var(--navy);border-radius:var(--rlg);padding:1.375rem;color:#fff;display:flex;align-items:center;gap:1.125rem;margin-bottom:1rem;box-shadow:var(--sh2)}
+.prof-av{width:64px;height:64px;border-radius:50%;background:var(--gold2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;color:var(--navy);flex-shrink:0;border:3px solid rgba(255,255,255,.15)}
+.prof-name{font-family:'Playfair Display',serif;font-size:1.2rem;color:#fff}
+.prof-id{font-family:'DM Mono',monospace;font-size:.76rem;color:var(--gold4);margin-top:.15rem}
+.prof-tags{display:flex;gap:.4rem;margin-top:.45rem;flex-wrap:wrap}
+
+/* ══ DOC CARD ═════════════════════════════════════════════ */
+.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:.8rem}
+.dc{background:#fff;border:1px solid var(--cream2);border-radius:var(--rlg);overflow:hidden;transition:all .2s;box-shadow:var(--sh)}
+.dc:hover{border-color:var(--gold2);transform:translateY(-2px);box-shadow:var(--sh2)}
+.dc-top{height:4px}
+.dc-body{padding:.85rem}
+.dc-ico{font-size:1.75rem;margin-bottom:.45rem}
+.dc-name{font-size:.83rem;font-weight:600;color:var(--navy);margin-bottom:.2rem;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dc-meta{font-size:.7rem;color:var(--ink3);line-height:1.55}
+.dc-foot{padding:.55rem .85rem;border-top:1px solid var(--cream2);display:flex;align-items:center;gap:.3rem}
+.version-dot{width:6px;height:6px;border-radius:50%;background:var(--g2);display:inline-block;margin-right:.2rem}
+
+/* ══ SEARCH PAGE ═════════════════════════════════════════ */
+.search-bar{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.filter-row{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:.875rem;padding:.75rem;background:#fff;border-radius:var(--rlg);border:1px solid var(--cream2)}
+.filter-chip{padding:.28rem .65rem;border:1px solid var(--cream3);border-radius:99px;font-size:.76rem;cursor:pointer;background:#fff;color:var(--ink3);font-family:'DM Sans',sans-serif;transition:all .15s}
+.filter-chip:hover,.filter-chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* ══ NOTIFICATIONS PANEL ══════════════════════════════════ */
+.notif-panel{position:fixed;top:60px;right:1rem;width:310px;background:#fff;border-radius:var(--rlg);border:1px solid var(--cream2);box-shadow:var(--sh2);z-index:400;display:none;max-height:380px;overflow-y:auto}
+.nph{padding:.7rem 1rem;border-bottom:1px solid var(--cream2);display:flex;justify-content:space-between;align-items:center}
+.npi{padding:.75rem .95rem;border-bottom:1px solid var(--cream2);display:flex;gap:.6rem;cursor:pointer;transition:background .15s}
+.npi:hover{background:var(--cream)}
+.npi.unread{background:rgba(212,172,58,.04)}
+.npdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.3rem}
+
+/* ══ REPORT CARD ══════════════════════════════════════════ */
+.rpt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:.8rem}
+.rpt-card{background:#fff;border-radius:var(--rlg);border:1px solid var(--cream2);overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--sh)}
+.rpt-card:hover{border-color:var(--gold2);transform:translateY(-2px);box-shadow:var(--sh2)}
+.rpt-top{height:5px;background:var(--gold2)}
+.rpt-body{padding:1.1rem}
+.rpt-ico{font-size:1.875rem;margin-bottom:.5rem}
+
+/* ══ TOASTS ══════════════════════════════════════════════ */
+.tc{position:fixed;bottom:1.25rem;right:1.25rem;z-index:900;display:flex;flex-direction:column;gap:.55rem;pointer-events:none;max-width:380px}
+.toast{background:#fff;border-radius:var(--rlg);padding:.85rem 1.1rem;display:flex;align-items:flex-start;gap:.65rem;border:1px solid var(--cream2);box-shadow:0 4px 16px rgba(10,18,35,.12);font-size:.84rem;min-width:280px;max-width:100%;transform:translateX(110%);transition:transform .32s cubic-bezier(.34,1.56,.64,1);border-left:4px solid var(--gold2);pointer-events:all;position:relative;word-wrap:break-word;word-break:break-word}
+.toast.show{transform:translateX(0)}
+.toast.ok{border-left-color:var(--g2);background:linear-gradient(135deg,#fff 0%,rgba(22,163,74,.03) 100%)}
+.toast.err{border-left-color:var(--r2);background:linear-gradient(135deg,#fff 0%,rgba(220,38,38,.03) 100%)}
+.toast.warn{border-left-color:var(--a2);background:linear-gradient(135deg,#fff 0%,rgba(217,119,6,.03) 100%)}
+.toast-icon{font-size:1.1rem;flex-shrink:0;margin-top:.05rem}
+.toast-msg{flex:1;line-height:1.45;color:var(--navy)}
+.toast-close{width:20px;height:20px;border:none;background:rgba(10,18,35,.06);border-radius:50%;cursor:pointer;color:var(--ink3);font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-family:'DM Sans',sans-serif;padding:0;margin-top:.05rem}
+.toast-close:hover{background:rgba(10,18,35,.15);color:var(--ink)}
+
+/* ══ QR DISPLAY ══════════════════════════════════════════ */
+.qr-box{background:var(--cream);border:1px solid var(--cream2);border-radius:var(--rlg);padding:1.25rem;text-align:center}
+.qr-img{margin:0 auto .75rem}
+.qr-code{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--ink3);background:var(--cream2);padding:.35rem .75rem;border-radius:6px;display:inline-block;letter-spacing:.5px;margin-top:.25rem}
+
+/* ══ SECURITY BANNER ═════════════════════════════════════ */
+.sec-banner{background:rgba(22,101,52,.06);border:1px solid rgba(22,101,52,.2);border-radius:var(--r);padding:.6rem .9rem;display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--g2);margin-bottom:1rem}
+
+/* ══ SECTION/FOLDER SIDEBAR TREE ════════════════════════ */
+.sb-tree{padding:0 .75rem}
+.sb-tree-lbl{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:rgba(180,170,160,.3);padding:.2rem .55rem;margin-bottom:.15rem;display:flex;align-items:center;justify-content:space-between}
+.sb-add-ico{width:18px;height:18px;background:rgba(212,172,58,.12);border:none;border-radius:50%;cursor:pointer;color:var(--gold3);font-size:.78rem;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'DM Sans',sans-serif;flex-shrink:0;line-height:1}
+.sb-add-ico:hover{background:rgba(212,172,58,.28)}
+.sec-row{display:flex;align-items:center;gap:.45rem;padding:.45rem .55rem;border-radius:var(--r);cursor:pointer;color:rgba(180,170,160,.58);font-size:.82rem;font-weight:500;position:relative;transition:all .15s;user-select:none}
+.sec-row:hover{background:rgba(255,255,255,.05);color:rgba(240,230,220,.85)}
+.sec-row.on{background:rgba(212,172,58,.13);color:var(--gold3)}
+.sec-row.on::before{content:'';position:absolute;left:0;top:18%;height:64%;width:3px;background:var(--gold2);border-radius:0 3px 3px 0}
+.sec-toggle{font-size:.58rem;opacity:.45;transition:transform .2s;flex-shrink:0;margin-right:-.15rem}
+.sec-toggle.open{transform:rotate(90deg)}
+.sec-ico-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sec-lbl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.81rem}
+.sec-actions{display:flex;gap:.2rem;opacity:0;transition:opacity .15s;flex-shrink:0}
+.sec-row:hover .sec-actions{opacity:1}
+.sec-action-btn{width:16px;height:16px;background:rgba(255,255,255,.09);border:none;border-radius:3px;cursor:pointer;color:rgba(200,189,168,.6);font-size:.6rem;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'DM Sans',sans-serif;padding:0}
+.sec-action-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+.sec-action-btn.del:hover{background:rgba(185,28,28,.35);color:#fca5a5}
+.folder-list{margin-left:.875rem;border-left:1px solid rgba(255,255,255,.07);padding-left:.35rem;display:none}
+.folder-list.open{display:block}
+.fol-row{display:flex;align-items:center;gap:.45rem;padding:.38rem .5rem;border-radius:var(--r);cursor:pointer;color:rgba(180,170,160,.5);font-size:.79rem;font-weight:400;position:relative;transition:all .15s;user-select:none}
+.fol-row:hover{background:rgba(255,255,255,.05);color:rgba(240,230,220,.8)}
+.fol-row.on{background:rgba(212,172,58,.1);color:var(--gold3)}
+.fol-actions{display:flex;gap:.2rem;opacity:0;transition:opacity .15s;flex-shrink:0}
+.fol-row:hover .fol-actions{opacity:1}
+/* ══ SECTION/FOLDER PAGES ════════════════════════════════ */
+.sec-header-bar{border-radius:var(--rlg);padding:1.2rem 1.375rem;color:#fff;display:flex;align-items:center;gap:1rem;margin-bottom:1rem;box-shadow:var(--sh2)}
+.sec-header-ico{width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:font-size:1.5rem;flex-shrink:0}
+.folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:.8rem;margin-bottom:1rem}
+.fol-card{background:#fff;border:1px solid var(--cream2);border-radius:var(--rlg);overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--sh)}
+.fol-card:hover{border-color:var(--gold2);transform:translateY(-2px);box-shadow:var(--sh2)}
+.fol-card-top{height:5px}
+.fol-card-body{padding:.9rem}
+.fol-card-ico{font-size:1.75rem;margin-bottom:.4rem}
+.fol-card-name{font-size:.88rem;font-weight:600;color:var(--navy);margin-bottom:.2rem}
+.fol-card-meta{font-size:.73rem;color:var(--ink3);line-height:1.55}
+.fol-card-foot{padding:.55rem .875rem;border-top:1px solid var(--cream2);display:flex;gap:.3rem;align-items:center}
+.sec-manage-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.8rem}
+.sec-manage-card{background:#fff;border:1px solid var(--cream2);border-radius:var(--rlg);overflow:hidden;box-shadow:var(--sh);transition:all .2s}
+.sec-manage-card:hover{box-shadow:var(--sh2)}
+.smc-top{height:5px}.smc-body{padding:1rem}.smc-ico{font-size:1.5rem;margin-bottom:.45rem}
+.smc-name{font-size:.9rem;font-weight:600;color:var(--navy);margin-bottom:.2rem}
+.smc-desc{font-size:.75rem;color:var(--ink3);line-height:1.5;margin-bottom:.75rem}
+.smc-foot{padding:.55rem .875rem;border-top:1px solid var(--cream2);display:flex;gap:.3rem;flex-wrap:wrap}
+
+/* ══ PRINT STYLES ═════════════════════════════════════════ */
+@media print{
+  .sidebar,.topbar,.ph-right,.btn,.tc,.mo,.filter-row,.search-bar{display:none!important}
+  #app{grid-template-columns:1fr!important;grid-template-rows:1fr!important;height:auto!important}
+  .main{padding:0!important;overflow:visible!important}
+  body{background:#fff!important}
+}
+
+/* ══ HAMBURGER BUTTON (mobile only) ═════════════════════ */
+.hamburger{display:none;width:36px;height:36px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex-shrink:0}
+.hamburger span{display:block;width:16px;height:2px;background:rgba(255,255,255,.7);border-radius:2px;transition:all .25s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* ══ MOBILE SIDEBAR OVERLAY ══════════════════════════════ */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(10,18,35,.5);z-index:199}
+.sb-overlay.show{display:block}
+
+/* ══ TABLET — 600px to 900px ════════════════════════════ */
+@media(max-width:900px){
+  #app{grid-template-columns:200px 1fr}
+  .tsearch{max-width:220px}
+  .t-urole{display:none}
+  .tname{max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sg{grid-template-columns:repeat(2,1fr)}
+  .frow,.frow3{grid-template-columns:1fr 1fr}
+  .md-xl{max-width:96vw}
+  .prof-hdr{flex-wrap:wrap;gap:.75rem}
+  table{font-size:.76rem}
+  thead th{padding:.52rem .65rem}
+  tbody td{padding:.58rem .65rem}
+}
+
+/* ══ MOBILE — up to 600px ════════════════════════════════ */
+@media(max-width:600px){
+  html{font-size:14px}
+
+  /* app shell: topbar full-width, content below */
+  #app{
+    grid-template-columns:1fr;
+    grid-template-rows:54px 1fr;
+    height:100vh;
+    overflow:hidden
+  }
+
+  /* sidebar becomes a slide-in drawer */
+  .sidebar{
+    position:fixed;
+    top:0;left:0;bottom:0;
+    width:252px;
+    z-index:200;
+    transform:translateX(-100%);
+    transition:transform .28s ease;
+    box-shadow:4px 0 24px rgba(10,18,35,.25)
+  }
+  .sidebar.open{transform:translateX(0)}
+
+  /* topbar adjustments */
+  .hamburger{display:flex}
+  .tsearch{display:none}
+  .t-urole{display:none}
+  .tname{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.73rem}
+  .tlogo{font-size:.95rem}
+  .tlogo-ico{width:24px;height:24px;font-size:.75rem}
+  .tright{gap:.35rem}
+  .tnotif{width:30px;height:30px;font-size:.8rem}
+  .t-av{width:23px;height:23px;font-size:.56rem}
+  .tuser{padding:.22rem .5rem .22rem .28rem}
+  .tout{padding:.28rem .55rem;font-size:.68rem}
+
+  /* main content */
+  .main{padding:1rem .875rem;overflow-y:auto}
+
+  /* page header */
+  .ph{flex-direction:column;gap:.5rem;margin-bottom:1rem}
+  .ph-right{flex-wrap:wrap;gap:.35rem}
+
+  /* stat cards: 2 per row on phone */
+  .sg{grid-template-columns:1fr 1fr;gap:.55rem;margin-bottom:1rem}
+  .sc-val{font-size:1.5rem}
+  .sc-ico{font-size:1.5rem}
+
+  /* grids */
+  .folder-grid{grid-template-columns:1fr 1fr}
+  .sec-manage-grid{grid-template-columns:1fr}
+  .rpt-grid{grid-template-columns:1fr 1fr}
+  .dg{grid-template-columns:repeat(auto-fill,minmax(145px,1fr))}
+
+  /* forms */
+  .frow,.frow3{grid-template-columns:1fr}
+
+  /* cards */
+  .card{border-radius:10px}
+  .ch{padding:.7rem .875rem;flex-direction:column;align-items:flex-start;gap:.45rem}
+  .cb{padding:.875rem}
+
+  /* tables: horizontal scroll wrapper already exists (.tw) */
+  table{font-size:.74rem;min-width:540px}
+  thead th{padding:.48rem .6rem;font-size:.6rem}
+  tbody td{padding:.52rem .6rem}
+
+  /* student profile */
+  .prof-hdr{flex-wrap:wrap;gap:.75rem;padding:1rem}
+  .prof-av{width:52px;height:52px;font-size:1.2rem}
+  .prof-name{font-size:1.05rem}
+
+  /* modals */
+  .md,.md-lg,.md-xl{max-width:100%;border-radius:var(--rlg) var(--rlg) 0 0;position:fixed;bottom:0;left:0;right:0;max-height:92vh}
+  .mo{align-items:flex-end;padding:0}
+  .mh{padding:.875rem 1rem}
+  .mb{padding:1rem}
+  .mfoot{padding:.75rem 1rem}
+
+  /* upload zone */
+  .uz{padding:1.25rem}
+
+  /* buttons */
+  .btn{font-size:.77rem;padding:.4rem .8rem}
+  .btn-sm{font-size:.71rem;padding:.26rem .55rem}
+
+  /* login */
+  .lbox{padding:.5rem}
+  .lcard{padding:1.375rem}
+  .lhdr h1{font-size:1.55rem}
+  .lcrest{width:56px;height:56px;font-size:1.5rem}
+
+  /* toasts */
+  .tc{bottom:.75rem;right:.75rem;left:.75rem;max-width:100%}
+  .toast{min-width:0;width:100%;font-size:.82rem;padding:.8rem .95rem}
+
+  /* notif panel */
+  .notif-panel{width:calc(100vw - 2rem);right:.875rem;left:.875rem}
+
+  /* sec-header-bar */
+  .sec-header-bar{flex-wrap:wrap;gap:.75rem;padding:1rem}
+
+  /* profile two-col grid → single col */
+  #app .main > div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+
+  .resp-grid-2{grid-template-columns:1fr!important}
+
+  /* hide stored filename column on phones — too long */
+  .hide-mobile{display:none!important}
+}
+
+/* ══ VERY SMALL — 380px and below ═══════════════════════ */
+@media(max-width:380px){
+  .sg{grid-template-columns:1fr}
+  .folder-grid{grid-template-columns:1fr}
+  .rpt-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══════════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="lbox">
+    <div class="lhdr">
+      <div class="lcrest">🏛️</div>
+      <h1>Registrar-Archiving</h1>
+      <p>Student Records Management System — Secure Access Portal</p>
+    </div>
+    <div class="lcard">
+      <div class="lg"><label>Username</label><input id="lu" placeholder="Enter your username" autocomplete="username"></div>
+      <div class="lg"><label>Password</label><input type="password" id="lp" placeholder="Enter your password" autocomplete="current-password"></div>
+      <div class="lg"><label>Access Role</label>
+        <select id="lr">
+          <option value="admin">Administrator</option>
+          <option value="staff">Registrar Staff</option>
+        </select>
+      </div>
+      <button class="lbtn" onclick="doLogin()">Sign In Securely</button>
+      <div id="lerr" class="lerr">⚠ Invalid credentials. Please try again.</div>
+      <div class="lhint">
+        Demo: <strong>admin / Admin@123</strong> or <strong>staff1 / Staff@123</strong>
+        <div class="qr-btns">
+          <button class="qrbtn on" onclick="quickLogin('admin',this)">👤 Admin</button>
+          <button class="qrbtn" onclick="quickLogin('staff',this)">👥 Staff</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOASTS ════════════════════════════════════════════════════ -->
+<div class="tc" id="tc"></div>
+
+<!-- ═══ NOTIFICATIONS PANEL ══════════════════════════════════════ -->
+<div class="notif-panel" id="notifPanel">
+  <div class="nph">
+    <span style="font-weight:600;font-size:.875rem;color:var(--navy)">Notifications</span>
+    <span style="font-size:.74rem;color:var(--b2);cursor:pointer" onclick="markAllRead()">Mark all read</span>
+  </div>
+  <div id="nList"></div>
+</div>
+
+<!-- ═══ APP ═══════════════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="tlogo"><div class="tlogo-ico">🏛️</div> Registrar-Archiving</div>
+    <div class="tsearch">
+      <span class="tsearch-ico">🔍</span>
+      <input id="gsearch" placeholder="Search students, documents, IDs…" oninput="globalSearch(this.value)" onkeydown="if(event.key==='Enter')goSearch()">
+    </div>
+    <div class="tright">
+      <div class="tnotif" id="notifBtn" onclick="toggleNotif()">🔔<div class="nbadge" id="nBadge"></div></div>
+      <div class="tuser">
+        <div class="tav" id="tAv">AD</div>
+        <div>
+          <div class="tname" id="tName">Administrator</div>
+          <div class="trole admin" id="tRole">Administrator</div>
+        </div>
+      </div>
+      <button class="tout" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR OVERLAY (mobile) -->
+  <div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sbody">
+      <div class="ssec">
+        <div class="slbl">Main</div>
+        <div class="ni on" id="ni-dashboard" onclick="navTo('dashboard',this)"><span class="ni-ico">📊</span><span class="ni-lbl">Dashboard</span></div>
+        <div class="ni" id="ni-students" onclick="navTo('students',this)"><span class="ni-ico">🎓</span><span class="ni-lbl">Students</span></div>
+        <div class="ni" id="ni-documents" onclick="navTo('documents',this)"><span class="ni-ico">📁</span><span class="ni-lbl">Documents</span></div>
+        <div class="ni" id="ni-search" onclick="navTo('search',this)"><span class="ni-ico">🔍</span><span class="ni-lbl">Advanced Search</span></div>
+      </div>
+      <hr class="s-divider">
+      <div class="ssec">
+        <div class="slbl">Tools</div>
+        <div class="ni" id="ni-reports" onclick="navTo('reports',this)"><span class="ni-ico">📈</span><span class="ni-lbl">Reports</span></div>
+        <div class="ni" id="ni-activity" onclick="navTo('activity',this)"><span class="ni-ico">🕵️</span><span class="ni-lbl">Activity Log</span></div>
+      </div>
+      <hr class="s-divider">
+      <div class="ssec" id="adminNav">
+        <div class="slbl">Admin</div>
+        <div class="ni" id="ni-sections" onclick="navTo('sections',this)"><span class="ni-ico">🗂️</span><span class="ni-lbl">Sections &amp; Folders</span></div>
+        <div class="ni" id="ni-settings" onclick="navTo('settings',this)"><span class="ni-ico">⚙️</span><span class="ni-lbl">Settings</span></div>
+        <div class="ni" id="ni-users" onclick="navTo('users',this)"><span class="ni-ico">👥</span><span class="ni-lbl">User Management</span></div>
+      </div>
+      <hr class="s-divider">
+      <div class="sb-tree" id="sectionTree"></div>
+    </div>
+    <div class="sfooter">
+      <div class="sinfo" id="sessionInfo">Session active</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main" id="mainArea"></div>
+
+</div><!-- /app -->
+
+<!-- ═══ MODALS ════════════════════════════════════════════════════ -->
+
+<!-- Student Modal -->
+<div class="mo" id="studModal">
+  <div class="md md-lg">
+    <div class="mh"><h3 id="studModalTitle">Add New Student</h3><button class="mcl" onclick="closeM('studModal')">✕</button></div>
+    <div class="mb">
+      <div class="frow">
+        <div class="ff"><label>Last Name *</label><input id="sLast" placeholder="dela Cruz"></div>
+        <div class="ff"><label>First Name *</label><input id="sFirst" placeholder="Juan"></div>
+      </div>
+      <div class="frow">
+        <div class="ff"><label>Middle Name</label><input id="sMid" placeholder="Santos"></div>
+        <div class="ff"><label>Gender</label><select id="sGender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+      </div>
+      <div class="frow">
+        <div class="ff"><label>Date of Birth</label><input type="date" id="sDob"></div>
+        <div class="ff"><label>Student ID</label><input id="sId" placeholder="Auto-generated if blank"></div>
+      </div>
+      <div class="frow">
+        <div class="ff"><label>Email *</label><input type="email" id="sEmail" placeholder="student@school.edu"></div>
+        <div class="ff"><label>Phone</label><input id="sPhone" placeholder="+63 9XX XXX XXXX"></div>
+      </div>
+      <div class="frow">
+        <div class="ff"><label>Course / Program *</label>
+          <select id="sCourse">
+            <option>Master in Education major in Educational Leadership</option>
+            <option>Doctor of Philosophy in Educational Leadership and Management</option>
+            <option>Master in Education major in General Science</option>
+            <option>Master in Education in Special Education</option>
+            <option>Doctor of Business Administration</option>
+            <option>Master in Information Technology</option>
+            <option>Master in Education major in Early Childhood Education</option>
+            <option>Master of Arts in Education major in Educational Management</option>
+            <option>Master in Education major in Mathematics</option>
+            <option>Master in Education major in Filipino</option>
+            <option>Master in Education major in English Language Teaching</option>
+            <option>Master in Business Administration</option>
+            <option>Master in Administration</option>
+            <option>Bachelor of Secondary Education major in Filipino</option>
+            <option>Bachelor of Secondary Education Major in English</option>
+            <option>Bachelor of Science in Tourism Management</option>
+            <option>Bachelor of Science in Psychology</option>
+            <option>Bachelor of Science in Nursing</option>
+            <option>Bachelor of Science in Information Technology</option>
+            <option>Bachelor of Science in Hospitality Management</option>
+            <option>Bachelor of Science in Hotel and Restaurant Management</option>
+            <option>Bachelor of Science in Electronics and Communications Engineering</option>
+            <option>Bachelor of Science in Electronics Engineering</option>
+            <option>Bachelor of Science in Electronic Engineering major in Microelectronics</option>
+            <option>Bachelor of Science in Electrical Engineering major in Advanced Electrical Systems Design</option>
+            <option>Bachelor of Science in Criminology</option>
+            <option>Bachelor of Science in Electrical Engineering</option>
+            <option>Bachelor of Science in Computer Science</option>
+            <option>Bachelor of Science in Computer Engineering major in Software Development</option>
+            <option>Bachelor of Science in Civil Engineering major in Structural</option>
+            <option>Bachelor of Science in Business Administration major in Marketing Management</option>
+            <option>Bachelor of Science in Business Administration major in Financial Management</option>
+            <option>Bachelor of Science in Accountancy</option>
+            <option>Bachelor of Arts in Communication</option>
+            <option>Bachelor of Elementary Education</option>
+          </select>
+        </div>
+        <div class="ff"><label>Year Level</label>
+          <select id="sYear"><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option><option>5th Year</option><option>Graduate</option></select>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="ff"><label>Section</label><input id="sSection" placeholder="e.g. A, Block 1"></div>
+        <div class="ff"><label>Status</label><select id="sStatus"><option>Active</option><option>Inactive</option><option>LOA</option><option>Graduated</option><option>Dropped</option></select></div>
+      </div>
+      <div class="ff"><label>Address</label><textarea id="sAddr" placeholder="Complete home address"></textarea></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-out" onclick="closeM('studModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveStudent()">Save Student Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Document Modal -->
+<div class="mo" id="uploadModal">
+  <div class="md md-lg">
+    <div class="mh"><h3>Upload Document</h3><button class="mcl" onclick="closeM('uploadModal')">✕</button></div>
+    <div class="mb">
+      <div class="frow">
+        <div class="ff"><label>Student ID *</label><input id="udStudId" placeholder="2024-00001" oninput="previewStudent(this.value)"></div>
+        <div id="udStudPreview" style="display:flex;align-items:center;padding-top:1.25rem;font-size:.8rem;color:var(--ink3)">—</div>
+      </div>
+      <div class="frow">
+        <div class="ff"><label>Document Category *</label>
+          <select id="udCat">
+            <option>Enrollment Form</option><option>Transcript of Records</option>
+            <option>Form 137</option><option>Diploma</option><option>Certificate of Enrollment</option>
+            <option>Certificate of Graduation</option><option>Good Moral Certificate</option>
+            <option>Health Certificate</option><option>Birth Certificate</option>
+            <option>ID Photo</option><option>Admission Letter</option>
+            <option>Application Form</option><option>Other</option>
+          </select>
+        </div>
+        <div class="ff"><label>Academic Year</label>
+          <select id="udAY">
+            <option>2024-2025</option><option>2023-2024</option><option>2022-2023</option><option>2021-2022</option><option>2020-2021</option>
+          </select>
+        </div>
+      </div>
+      <div class="ff"><label>Notes / Description</label><textarea id="udNotes" placeholder="Additional notes about this document…"></textarea></div>
+      <div class="frow">
+        <div class="ff"><label>Assign to Section</label><select id="udSecId" onchange="updateUploadFolList()"><option value="">— No section —</option></select></div>
+        <div class="ff"><label>Assign to Folder</label><select id="udFolId"><option value="">— No folder —</option></select></div>
+      </div>
+      <div id="versionWarning" style="display:none;background:var(--a3);border:1px solid var(--a2);border-radius:var(--r);padding:.6rem .85rem;font-size:.78rem;color:var(--a2);margin-bottom:.75rem">
+        ⚠ A document of this type already exists for this student. A new version will be created automatically.
+      </div>
+      <div class="uz" id="docUz" onclick="document.getElementById('docFileInp').click()"
+           ondragover="event.preventDefault();this.classList.add('over')"
+           ondragleave="this.classList.remove('over')"
+           ondrop="docDrop(event)">
+        <div class="uz-ico">📎</div>
+        <div class="uz-txt">Drop files here or click to browse</div>
+        <div class="uz-sub">PDF, JPG, PNG · Max 20 MB each · Up to 10 files</div>
+      </div>
+      <input type="file" id="docFileInp" multiple style="display:none"
+             accept=".pdf,.jpg,.jpeg,.png"
+             onchange="docFileSelect(this)">
+      <div class="uq" id="docQueue"></div>
+      <div id="docQSum" style="font-size:.74rem;color:var(--ink3);margin-top:.35rem"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-out" onclick="closeM('uploadModal')">Cancel</button>
+      <button class="btn btn-gold" id="docUpBtn" onclick="uploadDocs()" disabled>Upload &amp; Archive</button>
+    </div>
+  </div>
+</div>
+
+<!-- Document Viewer Modal -->
+<div class="mo" id="viewerModal">
+  <div class="md md-xl">
+    <div class="mh">
+      <h3 id="viewerTitle">Document Viewer</h3>
+      <div style="display:flex;gap:.45rem;align-items:center">
+        <button class="btn btn-out btn-sm" onclick="printDoc()">🖨 Print</button>
+        <button class="btn btn-gold btn-sm" id="viewerDlBtn">⬇ Download</button>
+        <button class="mcl" onclick="closeM('viewerModal')">✕</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 220px;min-height:460px">
+      <div id="viewerContent" style="min-height:420px;display:flex;align-items:center;justify-content:center;background:var(--cream);border-right:1px solid var(--cream2)"></div>
+      <div style="padding:1rem;overflow-y:auto">
+        <div style="font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--ink3);margin-bottom:.75rem">Document Info</div>
+        <div id="viewerMeta"></div>
+        <div style="margin-top:1rem" id="viewerQR"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal (Admin only) -->
+<div class="mo" id="userModal">
+  <div class="md">
+    <div class="mh"><h3 id="userModalTitle">Add Staff User</h3><button class="mcl" onclick="closeM('userModal')">✕</button></div>
+    <div class="mb">
+      <div class="frow">
+        <div class="ff"><label>Full Name *</label><input id="uName" placeholder="Juan dela Cruz"></div>
+        <div class="ff"><label>Username *</label><input id="uUser" placeholder="jdelacruz"></div>
+      </div>
+      <div class="frow">
+        <div class="ff"><label>Password *</label><input type="password" id="uPass" placeholder="Min 8 chars, 1 uppercase, 1 number"></div>
+        <div class="ff"><label>Role</label><select id="uRole"><option value="staff">Staff</option><option value="admin">Administrator</option></select></div>
+      </div>
+      <div class="ff"><label>Email</label><input type="email" id="uEmail" placeholder="user@school.edu"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-out" onclick="closeM('userModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveUser()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="mo" id="confirmModal">
+  <div class="md" style="max-width:400px">
+    <div class="mh"><h3 id="confirmTitle">Confirm Delete</h3><button class="mcl" onclick="closeM('confirmModal')">✕</button></div>
+    <div class="mb">
+      <p id="confirmMsg" style="font-size:.875rem;color:var(--ink3);line-height:1.6"></p>
+      <div style="margin-top:.875rem;padding:.75rem;background:var(--r3);border-radius:var(--r);font-size:.78rem;color:var(--r2)">⚠ This action cannot be undone.</div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-out" onclick="closeM('confirmModal')">Cancel</button>
+      <button class="btn btn-red" id="confirmBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Version History Modal -->
+<div class="mo" id="versionModal">
+  <div class="md">
+    <div class="mh"><h3>Document Version History</h3><button class="mcl" onclick="closeM('versionModal')">✕</button></div>
+    <div class="mb" id="versionBody"></div>
+  </div>
+</div>
+
+<!-- ═══ SECTION MODAL ════════════════════════════════════════════ -->
+<div class="mo" id="secModal">
+  <div class="md">
+    <div class="mh"><h3 id="secModalTitle">Create Section</h3><button class="mcl" onclick="closeM('secModal')">✕</button></div>
+    <div class="mb">
+      <div class="ff"><label>Section Name *</label><input id="secName" placeholder="e.g. Computer Science, AY 2024-2025"></div>
+      <div class="ff"><label>Description</label><input id="secDesc" placeholder="What this section is for…"></div>
+      <div class="frow">
+        <div class="ff"><label>Icon</label>
+          <div id="secIconPicker" style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.25rem;max-height:100px;overflow-y:auto"></div>
+        </div>
+        <div class="ff"><label>Color</label>
+          <div id="secColorPicker" style="display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.35rem"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-out" onclick="closeM('secModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveSectionData()">Save Section</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FOLDER MODAL ═════════════════════════════════════════════ -->
+<div class="mo" id="folModal">
+  <div class="md">
+    <div class="mh"><h3 id="folModalTitle">Create Folder</h3><button class="mcl" onclick="closeM('folModal')">✕</button></div>
+    <div class="mb">
+      <div class="ff"><label>Folder Name *</label><input id="folName" placeholder="e.g. 1st Semester, Enrollment Forms"></div>
+      <div class="ff"><label>Description</label><input id="folDesc" placeholder="What goes in this folder…"></div>
+      <div class="ff"><label>Parent Section *</label><select id="folSecId"></select></div>
+      <div class="frow">
+        <div class="ff"><label>Icon</label>
+          <div id="folIconPicker" style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.25rem;max-height:100px;overflow-y:auto"></div>
+        </div>
+        <div class="ff"><label>Color</label>
+          <div id="folColorPicker" style="display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.35rem"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-out" onclick="closeM('folModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveFolderData()">Save Folder</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RENAME MODAL ═════════════════════════════════════════════ -->
+<div class="mo" id="renameModal">
+  <div class="md" style="max-width:400px">
+    <div class="mh"><h3 id="renameTitle">Rename</h3><button class="mcl" onclick="closeM('renameModal')">✕</button></div>
+    <div class="mb">
+      <div class="ff"><label>New Name *</label><input id="renameName" placeholder="Enter new name"></div>
+      <div class="ff"><label>Description</label><input id="renameDesc" placeholder="Optional description"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-out" onclick="closeM('renameModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="doRename()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MOVE DOCUMENT MODAL ══════════════════════════════════════ -->
+<div class="mo" id="moveDocModal">
+  <div class="md" style="max-width:420px">
+    <div class="mh"><h3>Move Document to Folder</h3><button class="mcl" onclick="closeM('moveDocModal')">✕</button></div>
+    <div class="mb">
+      <div class="ff"><label>Section</label><select id="moveSecId" onchange="updateMoveFolderList()"></select></div>
+      <div class="ff"><label>Folder</label><select id="moveFolId"></select></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-out" onclick="closeM('moveDocModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="doMoveDoc()">Move Document</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
+// SECURITY UTILITIES
+// ════════════════════════════════════════════════════════════════
+
+function hashPwd(pwd) {
+  // NOTE: Simulated hash for demo. Production must use bcrypt server-side.
+  var h = 0x811c9dc5;
+  for (var i = 0; i < pwd.length; i++) {
+    h ^= pwd.charCodeAt(i);
+    h = (h * 0x01000193) >>> 0;
+  }
+  return 'rvp$' + h.toString(16).padStart(8,'0') + pwd.length.toString(16);
+}
+
+function verifyPwd(pwd, hash) {
+  return hashPwd(pwd) === hash;
+}
+
+function genId(prefix) {
+  return prefix + '-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random()*90000)+10000).slice(0,5);
+}
+
+function genVerifCode() {
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var code = '';
+  for (var i = 0; i < 12; i++) {
+    if (i > 0 && i % 4 === 0) code += '-';
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+function sanitize(str) {
+  return String(str).replace(/[<>"'&]/g, function(c) {
+    return {'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;','&':'&amp;'}[c];
+  });
+}
+
+function validateFile(file) {
+  var allowed = ['application/pdf','image/jpeg','image/jpg','image/png'];
+  var maxSize = 20 * 1024 * 1024;
+  if (!allowed.includes(file.type)) return 'File type not allowed. Only PDF, JPG, PNG.';
+  if (file.size > maxSize) return 'File exceeds 20 MB limit.';
+  return null;
+}
+
+function autoName(studId, category, version, ext) {
+  var date = new Date().toISOString().split('T')[0];
+  var cat = category.replace(/[^a-zA-Z0-9]/g,'_').replace(/_+/g,'_');
+  return studId + '_' + cat + '_' + date + '_v' + version + '.' + ext;
+}
+
+// ════════════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════════════
+
+var DB = {
+  sections: [
+    {id:'SEC-001', name:'Computer Science', icon:'💻', color:'#2563EB', desc:'CS Dept student records', createdBy:'admin', createdAt:'2024-08-01'},
+    {id:'SEC-002', name:'Engineering',       icon:'⚙️', color:'#D97706', desc:'Engineering dept records', createdBy:'admin', createdAt:'2024-08-01'},
+    {id:'SEC-003', name:'Medicine',          icon:'🩺', color:'#DC2626', desc:'College of Medicine',      createdBy:'admin', createdAt:'2024-08-01'}
+  ],
+  folders: [
+    {id:'FOL-001', sectionId:'SEC-001', name:'Enrollment Forms',    icon:'📋', color:'#2563EB', desc:'All enrollment-related docs',  createdBy:'admin', createdAt:'2024-08-02'},
+    {id:'FOL-002', sectionId:'SEC-001', name:'Transcripts',         icon:'📄', color:'#16A34A', desc:'Official TORs',                createdBy:'admin', createdAt:'2024-08-02'},
+    {id:'FOL-003', sectionId:'SEC-001', name:'ID & Photos',         icon:'🪪', color:'#7C3AED', desc:'ID photos and identification', createdBy:'admin', createdAt:'2024-08-05'},
+    {id:'FOL-004', sectionId:'SEC-002', name:'Admission Files',     icon:'📂', color:'#D97706', desc:'Admission letters and forms',  createdBy:'admin', createdAt:'2024-08-02'},
+    {id:'FOL-005', sectionId:'SEC-002', name:'Health Certificates', icon:'🏥', color:'#DC2626', desc:'Medical clearances',           createdBy:'admin', createdAt:'2024-08-03'},
+    {id:'FOL-006', sectionId:'SEC-003', name:'Clinical Records',    icon:'📁', color:'#DC2626', desc:'Clinical rotation documents',  createdBy:'staff1',createdAt:'2024-09-01'}
+  ],
+  users: [
+    {id:'USR-001', name:'Admin User',     username:'admin',  password:hashPwd('Admin@123'), role:'admin',  email:'admin@school.edu',  active:true,  lastLogin:'2025-01-20 09:15:32'},
+    {id:'USR-002', name:'Maria Santos',   username:'staff1', password:hashPwd('Staff@123'), role:'staff',  email:'msantos@school.edu', active:true,  lastLogin:'2025-01-19 14:22:05'},
+    {id:'USR-003', name:'Jose Reyes',     username:'staff2', password:hashPwd('Staff@123'), role:'staff',  email:'jreyes@school.edu',  active:false, lastLogin:'2025-01-10 08:00:00'}
+  ],
+  students: [
+    {id:'2024-00001', last:'Santos',    first:'Maria',   mid:'Cruz',       gender:'Female', dob:'2004-03-15', email:'m.santos@school.edu',  phone:'+63 912 345 6789', course:'Bachelor of Science in Computer Science', year:'3rd Year', section:'A', status:'Active',    gpa:'1.45', addr:'Quezon City',  enrollDate:'2022-08-15'},
+    {id:'2024-00002', last:'Reyes',     first:'Jose',    mid:'Lim',        gender:'Male',   dob:'2003-08-22', email:'j.reyes@school.edu',    phone:'+63 923 456 7890', course:'Bachelor of Science in Civil Engineering major in Structural', year:'4th Year', section:'B', status:'Active',    gpa:'1.75', addr:'Manila',        enrollDate:'2021-08-14'},
+    {id:'2024-00003', last:'Garcia',    first:'Ana',     mid:'Tan',        gender:'Female', dob:'2005-01-10', email:'a.garcia@school.edu',   phone:'+63 934 567 8901', course:'Bachelor of Science in Business Administration major in Marketing Management',year:'2nd Year', section:'A', status:'Active',    gpa:'1.25', addr:'Makati',        enrollDate:'2023-08-16'},
+    {id:'2024-00004', last:'Mendoza',   first:'Carlos',  mid:'Ramos',      gender:'Male',   dob:'2002-11-05', email:'c.mendoza@school.edu',  phone:'+63 945 678 9012', course:'Doctor of Business Administration',        year:'3rd Year', section:'C', status:'Active',    gpa:'1.50', addr:'Pasig',         enrollDate:'2022-08-15'},
+    {id:'2024-00005', last:'Torres',    first:'Liza',    mid:'Cruz',       gender:'Female', dob:'2003-06-18', email:'l.torres@school.edu',   phone:'+63 956 789 0123', course:'Bachelor of Science in Psychology',         year:'4th Year', section:'B', status:'LOA',       gpa:'1.30', addr:'Taguig',        enrollDate:'2021-08-14'},
+    {id:'2023-00089', last:'Villanueva',first:'Ramon',   mid:'Bautista',   gender:'Male',   dob:'2001-09-30', email:'r.villanueva@school.edu',phone:'+63 967 890 1234', course:'Bachelor of Science in Information Technology', year:'4th Year', section:'A', status:'Graduated', gpa:'2.00', addr:'Caloocan',      enrollDate:'2020-08-17'},
+    {id:'2024-00006', last:'Navarro',   first:'Sofia',   mid:'Flores',     gender:'Female', dob:'2004-12-25', email:'s.navarro@school.edu',  phone:'+63 978 901 2345', course:'Bachelor of Science in Electrical Engineering', year:'1st Year', section:'D', status:'Active',    gpa:'1.10', addr:'Mandaluyong',   enrollDate:'2024-08-19'},
+    {id:'2024-00007', last:'Aquino',    first:'Miguel',  mid:'Soriano',    gender:'Male',   dob:'2003-04-08', email:'m.aquino@school.edu',   phone:'+63 989 012 3456', course:'Bachelor of Science in Accountancy',        year:'2nd Year', section:'A', status:'Active',    gpa:'1.80', addr:'Pasay',         enrollDate:'2023-08-16'}
+  ],
+  documents: [
+    {id:'DOC-001', studId:'2024-00001', category:'Enrollment Form',      originalName:'enrollment.pdf',    storedName:'2024-00001_Enrollment_Form_2024-08-15_v1.pdf', type:'PDF', size:'2.4 MB', date:'2024-08-15', uploadedBy:'admin', version:1, verifCode:genVerifCode(), tags:['enrollment'], notes:'Official enrollment form AY 2024-2025', dataUrl:'', ay:'2024-2025', sectionId:'SEC-001', folderId:'FOL-001'},
+    {id:'DOC-002', studId:'2024-00001', category:'Transcript of Records', originalName:'tor.pdf',           storedName:'2024-00001_Transcript_of_Records_2024-09-10_v1.pdf', type:'PDF', size:'1.8 MB', date:'2024-09-10', uploadedBy:'admin', version:1, verifCode:genVerifCode(), tags:['transcript'], notes:'', dataUrl:'', ay:'2024-2025', sectionId:'SEC-001', folderId:'FOL-002'},
+    {id:'DOC-003', studId:'2024-00002', category:'Health Certificate',    originalName:'health_cert.pdf',   storedName:'2024-00002_Health_Certificate_2024-08-20_v1.pdf',  type:'PDF', size:'3.2 MB', date:'2024-08-20', uploadedBy:'staff1',version:1, verifCode:genVerifCode(), tags:['medical'],  notes:'',dataUrl:'', ay:'2024-2025', sectionId:'SEC-002', folderId:'FOL-005'},
+    {id:'DOC-004', studId:'2024-00003', category:'Admission Letter',      originalName:'admission.pdf',     storedName:'2024-00003_Admission_Letter_2024-07-15_v1.pdf',    type:'PDF', size:'0.8 MB', date:'2024-07-15', uploadedBy:'staff1',version:1, verifCode:genVerifCode(), tags:['admission'],notes:'',dataUrl:'', ay:'2024-2025', sectionId:'SEC-002', folderId:'FOL-004'},
+    {id:'DOC-005', studId:'2024-00004', category:'ID Photo',              originalName:'photo.jpg',         storedName:'2024-00004_ID_Photo_2024-08-01_v1.jpg',            type:'JPG', size:'1.2 MB', date:'2024-08-01', uploadedBy:'admin', version:1, verifCode:genVerifCode(), tags:['id'],       notes:'',dataUrl:'', ay:'2024-2025', sectionId:'SEC-001', folderId:'FOL-003'},
+    {id:'DOC-006', studId:'2024-00001', category:'Enrollment Form',       originalName:'enrollment_v2.pdf', storedName:'2024-00001_Enrollment_Form_2024-08-20_v2.pdf',     type:'PDF', size:'2.5 MB', date:'2024-08-20', uploadedBy:'staff1',version:2, verifCode:genVerifCode(), tags:['enrollment'],notes:'Updated copy',dataUrl:'',ay:'2024-2025', sectionId:'SEC-001', folderId:'FOL-001'}
+  ],
+  activity: [
+    {id:'ACT-001', user:'admin',  role:'Administrator',action:'LOGIN',           target:'System',        detail:'Successful login from 192.168.1.101', time:'2025-01-20 09:15:32', icon:'🔐', color:'g'},
+    {id:'ACT-002', user:'admin',  role:'Administrator',action:'CREATE_STUDENT',  target:'2024-00006',    detail:'Added new student Sofia Navarro',      time:'2025-01-19 11:22:00', icon:'🎓', color:'b'},
+    {id:'ACT-003', user:'staff1', role:'Staff',        action:'UPLOAD_DOC',      target:'DOC-006',       detail:'Uploaded Enrollment Form v2 for Santos', time:'2025-01-19 10:05:30', icon:'📤', color:'t'},
+    {id:'ACT-004', user:'staff1', role:'Staff',        action:'LOGIN',           target:'System',        detail:'Successful login from 192.168.1.102',  time:'2025-01-19 09:58:12', icon:'🔐', color:'g'},
+    {id:'ACT-005', user:'admin',  role:'Administrator',action:'VIEW_DOC',        target:'DOC-002',       detail:'Viewed Transcript for Santos, Maria',  time:'2025-01-18 14:30:00', icon:'👁', color:'a'},
+    {id:'ACT-006', user:'admin',  role:'Administrator',action:'EXPORT_REPORT',   target:'Enrollment RPT',detail:'Exported enrollment summary CSV',       time:'2025-01-18 13:00:00', icon:'📊', color:'v'}
+  ],
+  notifications: [
+    {id:'N1', title:'New document uploaded', body:'Enrollment Form v2 added for Santos, Maria.',      time:'10 min ago', read:false, type:'upload'},
+    {id:'N2', title:'Student record updated', body:'Student 2024-00006 (Navarro) profile updated.', time:'1 hr ago',  read:false, type:'update'},
+    {id:'N3', title:'Version conflict detected', body:'Enrollment Form already exists for 2024-00001.', time:'3 hrs ago', read:false, type:'warn'},
+    {id:'N4', title:'Report generated', body:'Enrollment summary report was downloaded.',             time:'1 day ago', read:true,  type:'report'}
+  ]
+};
+
+// ════════════════════════════════════════════════════════════════
+// SESSION STATE
+// ════════════════════════════════════════════════════════════════
+
+var SESSION = {user:null, role:null, loginTime:null};
+var stagedFiles = [];
+var currentStudentFilter = {q:'',status:'',course:'',year:''};
+var currentDocFilter = {q:'', studId:''};
+
+// Section/Folder state
+var editingSecId    = null;
+var editingFolId    = null;
+var renameType      = null;
+var renameTargetId  = null;
+var movingDocId     = null;
+var pickedSecIcon   = '📁';
+var pickedSecColor  = '#2563EB';
+var pickedFolIcon   = '📂';
+var pickedFolColor  = '#16A34A';
+
+var ICONS_LIST  = ['📁','📂','🗂️','🗃️','📋','📄','📝','📑','🎓','🏫','💻','⚙️','🩺','🏥','🧪','📊','📈','📉','🔬','🔭','🏛️','🎒','📌','📍','🔑','🔒','🏆','⭐','🌐','👤','👥','📎','💼','✏️','🖊️','📐','📏','🗒️','📬','🔔'];
+var COLORS_LIST = ['#2563EB','#16A34A','#D97706','#DC2626','#7C3AED','#0891B2','#DB2777','#65A30D','#D4AC3A','#B8942A','#0F766E','#7E22CE','#C2410C','#1D4ED8','#166534'];
+
+// ════════════════════════════════════════════════════════════════
+// DATA PERSISTENCE (LocalStorage)
+// ════════════════════════════════════════════════════════════════
+
+function saveData() {
+  try {
+    localStorage.setItem('regisvault_data', JSON.stringify({
+      sections: DB.sections,
+      folders: DB.folders,
+      users: DB.users,
+      students: DB.students,
+      documents: DB.documents,
+      activity: DB.activity,
+      notifications: DB.notifications,
+      savedAt: new Date().toISOString(),
+      version: '1.0'
+    }));
+  } catch(e) {
+    console.error('Failed to save data:', e);
+    if (e.name === 'QuotaExceededError') {
+      toast('Storage full - cannot save more data', 'err');
+    }
+  }
+}
+
+function loadData() {
+  try {
+    var saved = localStorage.getItem('regisvault_data');
+    if (saved) {
+      var data = JSON.parse(saved);
+      if (data.version) {
+        DB.sections = data.sections || DB.sections;
+        DB.folders = data.folders || DB.folders;
+        DB.users = data.users || DB.users;
+        DB.students = data.students || DB.students;
+        DB.documents = data.documents || DB.documents;
+        DB.activity = data.activity || DB.activity;
+        DB.notifications = data.notifications || DB.notifications;
+        console.log('✓ Data loaded from localStorage (saved:', data.savedAt, ')');
+        return true;
+      }
+    }
+  } catch(e) {
+    console.error('Failed to load data:', e);
+  }
+  return false;
+}
+
+function resetToDemo() {
+  if (confirm('⚠️ Reset all data to original demo state?\n\nThis will DELETE:\n• All students you added\n• All uploaded files\n• All sections and folders you created\n• All activity logs\n\nThis CANNOT be undone.')) {
+    localStorage.removeItem('regisvault_data');
+    toast('Data reset. Reloading...', 'ok');
+    setTimeout(function() { location.reload(); }, 800);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════════════════════════════
+
+function quickLogin(role, btn) {
+  document.querySelectorAll('.qrbtn').forEach(function(b) { b.classList.remove('on'); });
+  btn.classList.add('on');
+  if (role === 'admin') {
+    document.getElementById('lu').value = 'admin';
+    document.getElementById('lp').value = 'Admin@123';
+    document.getElementById('lr').value = 'admin';
+  } else {
+    document.getElementById('lu').value = 'staff1';
+    document.getElementById('lp').value = 'Staff@123';
+    document.getElementById('lr').value = 'staff';
+  }
+}
+
+function doLogin() {
+  var username = document.getElementById('lu').value.trim();
+  var password = document.getElementById('lp').value;
+  var role     = document.getElementById('lr').value;
+  var errEl    = document.getElementById('lerr');
+  errEl.style.display = 'none';
+  if (!username || !password) { errEl.style.display = 'block'; errEl.textContent = '⚠ Please fill in all fields.'; return; }
+  var user = DB.users.find(function(u) { return u.username === username && u.role === role; });
+  if (!user || !verifyPwd(password, user.password)) { errEl.style.display = 'block'; errEl.textContent = '⚠ Invalid credentials. Please try again.'; return; }
+  if (!user.active) { errEl.style.display = 'block'; errEl.textContent = '⚠ This account has been deactivated.'; return; }
+  SESSION.user = user;
+  SESSION.role = user.role;
+  SESSION.loginTime = new Date();
+  user.lastLogin = new Date().toISOString().replace('T',' ').slice(0,19);
+  document.getElementById('loginScreen').classList.add('hide');
+  document.getElementById('app').classList.add('on');
+  document.getElementById('tAv').textContent    = user.name.split(' ').map(function(n) { return n[0]; }).join('').slice(0,2).toUpperCase();
+  document.getElementById('tName').textContent  = user.name;
+  document.getElementById('tRole').textContent  = user.role === 'admin' ? 'Administrator' : 'Staff';
+  document.getElementById('tRole').className    = 'trole ' + user.role;
+  document.getElementById('sessionInfo').textContent = '🔒 ' + user.name + ' · ' + user.role;
+  if (user.role !== 'admin') document.getElementById('adminNav').style.display = 'none';
+  else document.getElementById('adminNav').style.display = 'block';
+  addActivity('LOGIN', 'System', 'Successful login');
+  renderNotifs();
+  loadData(); // Load any saved data from localStorage
+  buildSectionTree();
+  navTo('dashboard');
+}
+
+function doLogout() {
+  addActivity('LOGOUT', 'System', 'User signed out');
+  SESSION = {user:null, role:null, loginTime:null};
+  document.getElementById('loginScreen').classList.remove('hide');
+  document.getElementById('app').classList.remove('on');
+  document.getElementById('lu').value = '';
+  document.getElementById('lp').value = '';
+  document.getElementById('lerr').style.display = 'none';
+}
+
+function requireAdmin() {
+  return SESSION.role === 'admin';
+}
+
+// ════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════════════
+
+function navTo(page, el) {
+  closeSidebar();
+  document.querySelectorAll('.ni').forEach(function(n) { n.classList.remove('on'); });
+  var niEl = el || document.getElementById('ni-'+page);
+  if (niEl) niEl.classList.add('on');
+  var main = document.getElementById('mainArea');
+  if (page === 'dashboard') main.innerHTML = buildDashboard();
+  else if (page === 'students') main.innerHTML = buildStudentsPage();
+  else if (page === 'documents') main.innerHTML = buildDocumentsPage();
+  else if (page === 'search') main.innerHTML = buildSearchPage();
+  else if (page === 'reports') main.innerHTML = buildReportsPage();
+  else if (page === 'activity') main.innerHTML = buildActivityPage();
+  else if (page === 'settings') { if (!requireAdmin()) { toast('Admin access required','err'); return; } main.innerHTML = buildSettingsPage(); }
+  else if (page === 'users') { if (!requireAdmin()) { toast('Admin access required','err'); return; } main.innerHTML = buildUsersPage(); }
+  else if (page === 'sections') { if (!requireAdmin()) { toast('Admin access required','err'); return; } main.innerHTML = buildSectionsPage(); }
+  else if (page.startsWith('sec:')) { main.innerHTML = buildSectionView(page.slice(4)); }
+  else if (page.startsWith('fol:')) { main.innerHTML = buildFolderView(page.slice(4)); }
+  else if (page.startsWith('student:')) { var sid = page.split(':')[1]; main.innerHTML = buildStudentProfile(sid); }
+  closeNotifPanel();
+}
+
+// ════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════════════════════════
+
+function buildDashboard() {
+  var activeStudents = DB.students.filter(function(s) { return s.status === 'Active'; }).length;
+  var totalDocs      = DB.documents.length;
+  var grad           = DB.students.filter(function(s) { return s.status === 'Graduated'; }).length;
+  var pendingVers    = DB.documents.filter(function(d) { return d.version > 1; }).length;
+  var now = new Date();
+  var greeting = now.getHours() < 12 ? 'Good morning' : now.getHours() < 17 ? 'Good afternoon' : 'Good evening';
+  var recentDocs = DB.documents.slice(-4).reverse();
+  var recentStudents = DB.students.slice(-3).reverse();
+
+  return '<div class="sec-banner">🔒 Secure session active · All actions are logged · Role: <strong style="margin-left:.25rem">'+(SESSION.role==='admin'?'Administrator':'Staff')+'</strong></div>'+
+    '<div class="ph"><div class="ph-left"><h2>'+greeting+', '+SESSION.user.name.split(' ')[0]+'</h2><p>'+new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+'</p></div>'+
+    '<div class="ph-right">'+(requireAdmin() ? '<button class="btn btn-out btn-sm" onclick="navTo(\'reports\')">📈 Reports</button>' : '')+
+    '<button class="btn btn-gold btn-sm" onclick="openStudentModal()">+ New Student</button></div></div>'+
+
+    '<div class="sg">'+
+      '<div class="sc gold"><div class="sc-lbl">Total Students</div><div class="sc-val">'+DB.students.length+'</div><div class="sc-sub">'+activeStudents+' active</div><span class="sc-ico">🎓</span></div>'+
+      '<div class="sc green"><div class="sc-lbl">Documents Archived</div><div class="sc-val">'+totalDocs+'</div><div class="sc-sub">All records</div><span class="sc-ico">📁</span></div>'+
+      '<div class="sc blue"><div class="sc-lbl">Graduates</div><div class="sc-val">'+grad+'</div><div class="sc-sub">Completed programs</div><span class="sc-ico">🏅</span></div>'+
+      '<div class="sc violet"><div class="sc-lbl">Versioned Docs</div><div class="sc-val">'+pendingVers+'</div><div class="sc-sub">Multiple versions</div><span class="sc-ico">🔄</span></div>'+
+    '</div>'+
+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:.875rem">'+
+      '<div class="card"><div class="ch"><h3>Recent Documents</h3><button class="btn btn-out btn-sm" onclick="navTo(\'documents\')">View all →</button></div>'+
+        '<div class="tw"><table><thead><tr><th>Doc ID</th><th>Student</th><th>Category</th><th>Ver</th><th>Date</th></tr></thead><tbody>'+
+          recentDocs.map(function(d) {
+            var s = DB.students.find(function(x) { return x.id === d.studId; });
+            return '<tr><td class="mono">'+d.id+'</td><td style="font-size:.78rem">'+(s?s.last+', '+s.first:'—')+'</td>'+
+              '<td><span class="badge bg-blue">'+d.category.split(' ')[0]+'</span></td>'+
+              '<td><span class="badge bg-slate">v'+d.version+'</span></td>'+
+              '<td style="font-size:.76rem">'+d.date+'</td></tr>';
+          }).join('')+
+        '</tbody></table></div></div>'+
+
+      '<div class="card"><div class="ch"><h3>Activity Feed</h3><button class="btn btn-out btn-sm" onclick="navTo(\'activity\')">Full log →</button></div>'+
+        '<div class="cb" style="max-height:220px;overflow-y:auto"><div class="tl">'+
+          DB.activity.slice(0,5).map(function(a) {
+            return '<div class="tli"><div class="tld '+a.color+'">'+a.icon+'</div>'+
+              '<div class="tlc"><div class="tlt">'+sanitize(a.action.replace(/_/g,' '))+'</div>'+
+              '<div class="tls">'+sanitize(a.detail)+'</div></div>'+
+              '<div class="tltime">'+a.time.slice(11,16)+'</div></div>';
+          }).join('')+
+        '</div></div></div>'+
+    '</div>'+
+
+    '<div class="card"><div class="ch"><h3>Recently Added Students</h3><button class="btn btn-out btn-sm" onclick="navTo(\'students\')">All students →</button></div>'+
+      '<div class="tw"><table><thead><tr><th>Student ID</th><th>Name</th><th>Course</th><th>Year</th><th>Status</th><th>GPA</th><th></th></tr></thead><tbody>'+
+        recentStudents.map(function(s) {
+          return '<tr><td class="mono">'+s.id+'</td>'+
+            '<td><strong>'+sanitize(s.last)+', '+sanitize(s.first)+'</strong></td>'+
+            '<td style="font-size:.78rem">'+sanitize(s.course)+'</td>'+
+            '<td><span class="badge bg-blue">'+sanitize(s.year)+'</span></td>'+
+            '<td>'+statusBadge(s.status)+'</td>'+
+            '<td class="mono">'+s.gpa+'</td>'+
+            '<td><button class="btn btn-out btn-sm" onclick="navTo(\'student:'+s.id+'\')">View</button></td></tr>';
+        }).join('')+
+      '</tbody></table></div></div>';
+}
+
+// ════════════════════════════════════════════════════════════════
+// STUDENTS PAGE
+// ════════════════════════════════════════════════════════════════
+
+function buildStudentsPage() {
+  return '<div class="ph"><div class="ph-left"><h2>Student Records</h2><p>Manage all registered student accounts and records</p></div>'+
+    '<div class="ph-right">'+
+      (requireAdmin() ? '<button class="btn btn-out btn-sm" onclick="exportStudentsCSV()">⬇ Export CSV</button>' : '')+
+      '<button class="btn btn-gold btn-sm" onclick="openStudentModal()">+ Add Student</button>'+
+    '</div></div>'+
+    '<div class="card">'+
+      '<div class="ch" style="flex-wrap:wrap;gap:.625rem">'+
+        '<h3 id="studCount">'+DB.students.length+' students</h3>'+
+        '<div style="display:flex;gap:.45rem;flex-wrap:wrap;margin-left:auto">'+
+          '<input class="fi" id="studQ" placeholder="Search name or ID…" oninput="liveFilterStudents()" style="width:195px">'+
+          '<select class="fi" id="studStatus" onchange="liveFilterStudents()"><option value="">All Status</option><option>Active</option><option>Inactive</option><option>Graduated</option><option>LOA</option><option>Dropped</option></select>'+
+          '<select class="fi" id="studCourse" onchange="liveFilterStudents()" style="max-width:195px"><option value="">All Courses</option><option>Master in Education major in Educational Leadership</option><option>Doctor of Philosophy in Educational Leadership and Management</option><option>Master in Education major in General Science</option><option>Master in Education in Special Education</option><option>Doctor of Business Administration</option><option>Master in Information Technology</option><option>Master in Education major in Early Childhood Education</option><option>Master of Arts in Education major in Educational Management</option><option>Master in Education major in Mathematics</option><option>Master in Education major in Filipino</option><option>Master in Education major in English Language Teaching</option><option>Master in Business Administration</option><option>Master in Administration</option><option>Bachelor of Secondary Education major in Filipino</option><option>Bachelor of Secondary Education Major in English</option><option>Bachelor of Science in Tourism Management</option><option>Bachelor of Science in Psychology</option><option>Bachelor of Science in Nursing</option><option>Bachelor of Science in Information Technology</option><option>Bachelor of Science in Hospitality Management</option><option>Bachelor of Science in Hotel and Restaurant Management</option><option>Bachelor of Science in Electronics and Communications Engineering</option><option>Bachelor of Science in Electronics Engineering</option><option>Bachelor of Science in Electronic Engineering major in Microelectronics</option><option>Bachelor of Science in Electrical Engineering major in Advanced Electrical Systems Design</option><option>Bachelor of Science in Criminology</option><option>Bachelor of Science in Electrical Engineering</option><option>Bachelor of Science in Computer Science</option><option>Bachelor of Science in Computer Engineering major in Software Development</option><option>Bachelor of Science in Civil Engineering major in Structural</option><option>Bachelor of Science in Business Administration major in Marketing Management</option><option>Bachelor of Science in Business Administration major in Financial Management</option><option>Bachelor of Science in Accountancy</option><option>Bachelor of Arts in Communication</option><option>Bachelor of Elementary Education</option></select>'+
+        '</div>'+
+      '</div>'+
+      '<div class="tw"><table><thead><tr>'+
+        '<th><input type="checkbox" id="checkAll" onchange="selAll(this)"></th>'+
+        '<th>Student ID</th><th>Name</th><th>Course</th><th>Year / Sec</th><th>GPA</th><th>Status</th><th>Docs</th><th>Actions</th>'+
+      '</tr></thead><tbody id="studTable">'+renderStudentRows(DB.students)+'</tbody></table></div>'+
+      '<div style="padding:.65rem 1.1rem;border-top:1px solid var(--cream2);display:flex;align-items:center;justify-content:space-between">'+
+        '<span id="studBulkInfo" style="font-size:.78rem;color:var(--ink3)"></span>'+
+        '<div id="studBulkActions"></div>'+
+      '</div>'+
+    '</div>';
+}
+
+function renderStudentRows(list) {
+  if (!list.length) return '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--ink3)">No students found</td></tr>';
+  return list.map(function(s) {
+    var docCount = DB.documents.filter(function(d) { return d.studId === s.id; }).length;
+    return '<tr>'+
+      '<td><input type="checkbox" class="studcheck" value="'+s.id+'" onchange="updateBulk()"></td>'+
+      '<td class="mono">'+s.id+'</td>'+
+      '<td><strong>'+sanitize(s.last)+', '+sanitize(s.first)+'</strong><br><span style="font-size:.71rem;color:var(--ink3)">'+sanitize(s.email)+'</span></td>'+
+      '<td style="font-size:.79rem">'+sanitize(s.course)+'</td>'+
+      '<td><span class="badge bg-blue">'+sanitize(s.year)+'</span> <span class="badge bg-slate">'+sanitize(s.section)+'</span></td>'+
+      '<td class="mono">'+s.gpa+'</td>'+
+      '<td>'+statusBadge(s.status)+'</td>'+
+      '<td><span class="badge bg-teal">'+docCount+'</span></td>'+
+      '<td><div style="display:flex;gap:.3rem">'+
+        '<button class="btn btn-out btn-sm" onclick="navTo(\'student:'+s.id+'\')">View</button>'+
+        '<button class="btn btn-blue btn-sm" onclick="openEditStudent(\''+s.id+'\')">Edit</button>'+
+        (requireAdmin() ? '<button class="btn btn-red btn-sm" onclick="confirmDelete(\'student\',\''+s.id+'\')" title="Delete">🗑</button>' : '')+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function liveFilterStudents() {
+  var q  = (document.getElementById('studQ') || {}).value || '';
+  var st = (document.getElementById('studStatus') || {}).value || '';
+  var cr = (document.getElementById('studCourse') || {}).value || '';
+  var list = DB.students.filter(function(s) {
+    if (q && (s.last+' '+s.first+' '+s.id).toLowerCase().indexOf(q.toLowerCase()) < 0) return false;
+    if (st && s.status !== st) return false;
+    if (cr && s.course !== cr) return false;
+    return true;
+  });
+  var t = document.getElementById('studTable');
+  if (t) t.innerHTML = renderStudentRows(list);
+  var c = document.getElementById('studCount');
+  if (c) c.textContent = list.length + ' student' + (list.length !== 1 ? 's' : '');
+}
+
+var selectedStudents = [];
+
+function selAll(cb) {
+  document.querySelectorAll('.studcheck').forEach(function(c) { c.checked = cb.checked; });
+  updateBulk();
+}
+
+function updateBulk() {
+  selectedStudents = Array.from(document.querySelectorAll('.studcheck:checked')).map(function(c) { return c.value; });
+  var info = document.getElementById('studBulkInfo');
+  var acts = document.getElementById('studBulkActions');
+  if (!info) return;
+  if (selectedStudents.length) {
+    info.textContent = selectedStudents.length + ' selected';
+    acts.innerHTML = requireAdmin() ? '<button class="btn btn-red btn-sm" onclick="bulkDelete()">🗑 Delete Selected</button>' : '';
+  } else {
+    info.textContent = '';
+    acts.innerHTML = '';
+  }
+}
+
+function bulkDelete() {
+  if (!requireAdmin()) { toast('Admin access required','err'); return; }
+  if (!confirm('Delete ' + selectedStudents.length + ' student records? This also deletes all their documents.')) return;
+  selectedStudents.forEach(function(id) {
+    DB.students = DB.students.filter(function(s) { return s.id !== id; });
+    DB.documents = DB.documents.filter(function(d) { return d.studId !== id; });
+    addActivity('DELETE_STUDENT', id, 'Bulk delete of student record');
+  });
+  selectedStudents = [];
+  navTo('students');
+  toast('Records deleted', 'err');
+}
+
+// ════════════════════════════════════════════════════════════════
+// STUDENT PROFILE
+// ════════════════════════════════════════════════════════════════
+
+function buildStudentProfile(sid) {
+  var s = DB.students.find(function(x) { return x.id === sid; });
+  if (!s) return '<div style="padding:2rem;color:var(--r2)">Student not found.</div>';
+  var docs = DB.documents.filter(function(d) { return d.studId === sid; });
+  addActivity('VIEW_STUDENT', sid, 'Viewed profile of '+s.last+', '+s.first);
+
+  // Group docs by category for the summary bar
+  var cats = {};
+  docs.forEach(function(d) { cats[d.category] = (cats[d.category]||0)+1; });
+
+  return (
+    // ── back + header ──────────────────────────────────────────
+    '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.65rem;margin-bottom:.875rem">'+
+      '<button class="btn btn-out btn-sm" onclick="navTo(\'students\')">← Back to Students</button>'+
+      '<div style="display:flex;gap:.45rem">'+
+        '<button class="btn btn-out btn-sm" onclick="openEditStudent(\''+sid+'\')">✏ Edit Student</button>'+
+        '<button class="btn btn-gold btn-sm" onclick="openUploadModal(\''+sid+'\')">📎 Upload Files</button>'+
+      '</div>'+
+    '</div>'+
+
+    // ── profile banner ────────────────────────────────────────
+    '<div class="prof-hdr">'+
+      '<div class="prof-av">'+s.first[0]+s.last[0]+'</div>'+
+      '<div style="flex:1">'+
+        '<div class="prof-name">'+sanitize(s.last)+', '+sanitize(s.first)+' '+sanitize(s.mid)+'</div>'+
+        '<div class="prof-id">'+s.id+'</div>'+
+        '<div style="font-size:.8rem;color:rgba(255,255,255,.45);margin-top:.2rem">'+sanitize(s.email)+' · '+sanitize(s.phone)+'</div>'+
+        '<div class="prof-tags" style="margin-top:.45rem">'+statusBadge(s.status)+'<span class="badge bg-blue">'+sanitize(s.year)+'</span><span class="badge bg-slate">Sec '+sanitize(s.section)+'</span></div>'+
+      '</div>'+
+      '<div style="text-align:right;flex-shrink:0">'+
+        '<div style="font-size:.68rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.6px">GPA</div>'+
+        '<div style="font-size:2.25rem;font-weight:700;color:var(--gold3);font-family:\'DM Mono\',monospace;line-height:1">'+s.gpa+'</div>'+
+        '<div style="font-size:.72rem;color:rgba(255,255,255,.3);margin-top:.3rem">'+docs.length+' file'+(docs.length!==1?'s':'')+' archived</div>'+
+      '</div>'+
+    '</div>'+
+
+    // ── info grid ─────────────────────────────────────────────
+    '<div class="resp-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem;margin-bottom:1.125rem">'+
+      '<div class="card"><div class="ch"><h3>📋 Personal Information</h3></div><div class="cb" style="padding:.75rem 1.1rem">'+
+        infoRow('Email',           sanitize(s.email))+
+        infoRow('Phone',           sanitize(s.phone||'—'))+
+        infoRow('Gender',          sanitize(s.gender))+
+        infoRow('Date of Birth',   sanitize(s.dob||'—'))+
+        infoRow('Address',         sanitize(s.addr||'—'))+
+      '</div></div>'+
+      '<div class="card"><div class="ch"><h3>🎓 Academic Details</h3></div><div class="cb" style="padding:.75rem 1.1rem">'+
+        infoRow('Course',          sanitize(s.course))+
+        infoRow('Year Level',      sanitize(s.year))+
+        infoRow('Section',         sanitize(s.section))+
+        infoRow('Status',          statusBadge(s.status))+
+        infoRow('Enrolled',        sanitize(s.enrollDate||'—'))+
+      '</div></div>'+
+    '</div>'+
+
+    // ── FILES SECTION ─────────────────────────────────────────
+    '<div class="card">'+
+      // card header
+      '<div class="ch" style="background:var(--navy);border-radius:var(--rlg) var(--rlg) 0 0">'+
+        '<div style="display:flex;align-items:center;gap:.625rem">'+
+          '<span style="font-size:1rem">📁</span>'+
+          '<span style="font-weight:600;color:#fff;font-size:.95rem">Student Files</span>'+
+          '<span style="font-size:.72rem;font-weight:600;padding:.15rem .55rem;border-radius:99px;background:rgba(212,172,58,.2);color:var(--gold3)">'+docs.length+'</span>'+
+        '</div>'+
+        '<div style="display:flex;gap:.4rem;align-items:center">'+
+          (Object.keys(cats).length ?
+            Object.keys(cats).map(function(cat) {
+              return '<span style="font-size:.66rem;padding:.15rem .5rem;border-radius:99px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.6)">'+sanitize(cat.split(' ')[0])+'s ('+cats[cat]+')</span>';
+            }).join('') : '')+
+          '<button class="btn btn-gold btn-sm" onclick="openUploadModal(\''+sid+'\')">+ Upload</button>'+
+        '</div>'+
+      '</div>'+
+
+      (docs.length === 0 ?
+        // empty state
+        '<div style="padding:3rem;text-align:center">'+
+          '<div style="font-size:3rem;margin-bottom:.875rem;opacity:.25">📂</div>'+
+          '<div style="font-weight:600;color:var(--ink);margin-bottom:.35rem">No files uploaded yet</div>'+
+          '<div style="font-size:.83rem;color:var(--ink3);margin-bottom:1.25rem">Upload documents such as enrollment forms, transcripts, or ID photos.</div>'+
+          '<button class="btn btn-gold" onclick="openUploadModal(\''+sid+'\')">📎 Upload First File</button>'+
+        '</div>'
+      :
+        // files table
+        '<div class="tw">'+
+          '<table>'+
+            '<thead>'+
+              '<tr>'+
+                '<th style="width:56px">Preview</th>'+
+                '<th>Original Filename</th>'+
+                '<th>Category</th>'+
+                '<th class="hide-mobile">Stored As</th>'+
+                '<th>Type</th>'+
+                '<th>Ver</th>'+
+                '<th>Size</th>'+
+                '<th class="hide-mobile">Uploaded</th>'+
+                '<th class="hide-mobile">By</th>'+
+                '<th>Actions</th>'+
+              '</tr>'+
+            '</thead>'+
+            '<tbody>'+
+              docs.map(function(d) {
+                var isImg = (d.type==='JPG'||d.type==='PNG'||d.type==='JPEG'||d.type==='GIF');
+                var typeColor = {PDF:'#2563EB',JPG:'#D97706',PNG:'#16A34A',JPEG:'#D97706',GIF:'#7C3AED'};
+                var col = typeColor[d.type]||'#9A8A78';
+
+                // thumbnail cell
+                var thumb = isImg && d.dataUrl
+                  ? '<img src="'+d.dataUrl+'" style="width:44px;height:44px;object-fit:cover;border-radius:6px;display:block;border:1px solid var(--cream2)">'
+                  : '<div style="width:44px;height:44px;border-radius:6px;background:'+col+'15;border:1px solid '+col+'30;display:flex;align-items:center;justify-content:center;font-size:1.25rem">'+(d.type==='PDF'?'📕':'📄')+'</div>';
+
+                return '<tr>'+
+                  '<td style="padding:.6rem .85rem">'+thumb+'</td>'+
+                  '<td>'+
+                    '<div style="font-size:.83rem;font-weight:500;color:var(--ink)">'+sanitize(d.originalName)+'</div>'+
+                    (d.notes?'<div style="font-size:.71rem;color:var(--b2);margin-top:.1rem">'+sanitize(d.notes)+'</div>':'')+
+                  '</td>'+
+                  '<td><span class="badge bg-blue" style="font-size:.63rem">'+sanitize(d.category)+'</span></td>'+
+                  '<td class="hide-mobile" style="font-size:.7rem;font-family:\'DM Mono\',monospace;color:var(--ink3);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+sanitize(d.storedName)+'">'+sanitize(d.storedName)+'</td>'+
+                  '<td><span class="badge" style="background:'+col+'18;color:'+col+'">'+d.type+'</span></td>'+
+                  '<td><span class="badge bg-slate">v'+d.version+'</span></td>'+
+                  '<td style="font-size:.78rem;white-space:nowrap">'+d.size+'</td>'+
+                  '<td class="hide-mobile" style="font-size:.76rem;white-space:nowrap">'+d.date+'</td>'+
+                  '<td class="hide-mobile" style="font-size:.76rem">'+sanitize(d.uploadedBy)+'</td>'+
+                  '<td>'+
+                    '<div style="display:flex;gap:.28rem;flex-wrap:nowrap">'+
+                      '<button class="btn btn-out btn-sm" onclick="openViewer(\''+d.id+'\')" title="View / Preview">👁</button>'+
+                      (d.dataUrl?'<button class="btn btn-out btn-sm" onclick="downloadDoc(\''+d.id+'\')" title="Download">⬇</button>':'')+
+                      '<button class="btn btn-out btn-sm" onclick="showVersionHistory(\''+sid+'\',\''+d.category+'\')" title="Version history">🔄</button>'+
+                      (requireAdmin()?'<button class="btn btn-red btn-sm" onclick="confirmDelete(\'doc\',\''+d.id+'\')" title="Delete">🗑</button>':'')+
+                    '</div>'+
+                  '</td>'+
+                '</tr>';
+              }).join('')+
+            '</tbody>'+
+          '</table>'+
+        '</div>'+
+
+        // summary footer
+        '<div style="padding:.65rem 1.1rem;border-top:1px solid var(--cream2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">'+
+          '<span style="font-size:.78rem;color:var(--ink3)">'+docs.length+' file'+(docs.length!==1?'s':'')+' · '+
+            docs.filter(function(d){return !!d.dataUrl;}).length+' with actual data · '+
+            [...new Set(docs.map(function(d){return d.category;}))].length+' categories</span>'+
+          '<button class="btn btn-gold btn-sm" onclick="openUploadModal(\''+sid+'\')">📎 Upload More</button>'+
+        '</div>'
+      )+
+    '</div>'
+  );
+}
+
+function infoRow(label, value) {
+  return '<div style="display:flex;align-items:baseline;gap:.5rem;padding:.35rem 0;border-bottom:1px solid var(--cream2)">'+
+    '<span style="font-size:.7rem;font-weight:600;text-transform:uppercase;color:var(--ink3);width:110px;flex-shrink:0">'+label+'</span>'+
+    '<span style="font-size:.845rem;color:var(--ink)">'+value+'</span>'+
+  '</div>';
+}
+
+function docCard(d) {
+  var isImage = (d.type === 'JPG' || d.type === 'PNG' || d.type === 'JPEG' || d.type === 'GIF');
+  var colorMap = {'PDF':'#2563EB','JPG':'#D97706','PNG':'#16A34A','PNG':'#16A34A','JPEG':'#D97706','GIF':'#7C3AED'};
+  var col = colorMap[d.type] || '#9A8A78';
+  var thumbHtml = '';
+  if (isImage && d.dataUrl) {
+    thumbHtml = '<div style="width:100%;height:72px;border-radius:6px;overflow:hidden;margin-bottom:.5rem;background:var(--cream2)">'+
+      '<img src="'+d.dataUrl+'" style="width:100%;height:72px;object-fit:cover" alt="'+sanitize(d.category)+'"></div>';
+  } else {
+    thumbHtml = '<div style="font-size:1.75rem;margin-bottom:.45rem">'+(d.type==='PDF'?'📕':'📄')+'</div>';
+  }
+  return '<div class="dc">'+
+    '<div class="dc-top" style="background:'+col+'"></div>'+
+    '<div class="dc-body">'+
+      thumbHtml+
+      '<div class="dc-name" title="'+sanitize(d.storedName)+'">'+sanitize(d.category)+'</div>'+
+      '<div class="dc-meta">'+
+        '<span class="version-dot"></span>v'+d.version+' · '+d.type+' · '+d.size+'<br>'+
+        d.date+' · '+sanitize(d.uploadedBy)+
+        (d.notes ? '<br><em style="color:var(--b2)">'+sanitize(d.notes)+'</em>' : '')+
+      '</div>'+
+    '</div>'+
+    '<div class="dc-foot" style="flex-wrap:wrap">'+
+      '<button class="btn btn-out btn-sm" onclick="openViewer(\''+d.id+'\')">👁 View</button>'+
+      (d.dataUrl ? '<button class="btn btn-out btn-sm" onclick="downloadDoc(\''+d.id+'\')">⬇</button>' : '')+
+      '<button class="btn btn-out btn-sm" onclick="showVersionHistory(\''+d.studId+'\',\''+d.category+'\')" title="Version history">🔄</button>'+
+      (requireAdmin() ? '<button class="btn btn-red btn-sm" onclick="confirmDelete(\'doc\',\''+d.id+'\')">🗑</button>' : '')+
+    '</div>'+
+  '</div>';
+}
+
+// ════════════════════════════════════════════════════════════════
+// DOCUMENTS PAGE
+// ════════════════════════════════════════════════════════════════
+
+function buildDocumentsPage() {
+  return '<div class="ph"><div class="ph-left"><h2>Document Archive</h2><p>All archived student documents with version control</p></div>'+
+    '<div class="ph-right">'+
+      '<button class="btn btn-out btn-sm" onclick="exportDocsCSV()">⬇ Export CSV</button>'+
+      '<button class="btn btn-gold btn-sm" onclick="openUploadModal(\'\')">+ Upload Document</button>'+
+    '</div></div>'+
+    '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.875rem">'+
+      '<input class="fi" id="docSearch" placeholder="Search by student ID, name, category…" oninput="liveFilterDocs()" style="width:280px">'+
+      '<input class="fi" id="docStudId" placeholder="Student ID filter…" oninput="liveFilterDocs()" style="width:165px">'+
+      '<select class="fi" id="docCat" onchange="liveFilterDocs()" style="width:175px">'+
+        '<option value="">All Categories</option><option>Enrollment Form</option><option>Transcript of Records</option>'+
+        '<option>Form 137</option><option>Diploma</option><option>Certificate of Enrollment</option>'+
+        '<option>Health Certificate</option><option>ID Photo</option><option>Admission Letter</option>'+
+      '</select>'+
+    '</div>'+
+    '<div class="card"><div class="tw"><table><thead><tr>'+
+      '<th>Doc ID</th><th>Student</th><th>Category</th><th>Stored Filename</th><th>Type</th><th>Ver</th><th>Size</th><th>Date</th><th>By</th><th>Actions</th>'+
+    '</tr></thead><tbody id="docTable">'+renderDocRows(DB.documents)+'</tbody></table></div></div>';
+}
+
+function renderDocRows(list) {
+  if (!list.length) return '<tr><td colspan="10" style="text-align:center;padding:1.5rem;color:var(--ink3)">No documents found</td></tr>';
+  return list.map(function(d) {
+    var s = DB.students.find(function(x) { return x.id === d.studId; });
+    return '<tr>'+
+      '<td class="mono">'+d.id+'</td>'+
+      '<td><strong class="mono">'+d.studId+'</strong><br><span style="font-size:.72rem;color:var(--ink3)">'+(s?sanitize(s.last)+', '+sanitize(s.first):'Unknown')+'</span></td>'+
+      '<td><span class="badge bg-blue">'+sanitize(d.category)+'</span></td>'+
+      '<td style="font-size:.72rem;font-family:\'DM Mono\',monospace;color:var(--ink3);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+sanitize(d.storedName)+'">'+sanitize(d.storedName)+'</td>'+
+      '<td><span class="badge '+(d.type==='PDF'?'bg-red':'bg-gold')+'">'+d.type+'</span></td>'+
+      '<td><span class="badge bg-slate">v'+d.version+'</span></td>'+
+      '<td style="font-size:.78rem">'+d.size+'</td>'+
+      '<td style="font-size:.78rem">'+d.date+'</td>'+
+      '<td style="font-size:.78rem">'+sanitize(d.uploadedBy)+'</td>'+
+      '<td><div style="display:flex;gap:.3rem">'+
+        '<button class="btn btn-out btn-sm" onclick="openViewer(\''+d.id+'\')">👁</button>'+
+        '<button class="btn btn-out btn-sm" onclick="showVersionHistory(\''+d.studId+'\',\''+d.category+'\')">🔄</button>'+
+        (d.dataUrl ? '<button class="btn btn-out btn-sm" onclick="downloadDoc(\''+d.id+'\')">⬇</button>' : '')+
+        (requireAdmin() ? '<button class="btn btn-red btn-sm" onclick="confirmDelete(\'doc\',\''+d.id+'\')">🗑</button>' : '')+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function liveFilterDocs() {
+  var q  = (document.getElementById('docSearch') || {}).value || '';
+  var si = (document.getElementById('docStudId') || {}).value || '';
+  var ca = (document.getElementById('docCat') || {}).value || '';
+  var list = DB.documents.filter(function(d) {
+    var s = DB.students.find(function(x) { return x.id === d.studId; });
+    var nameStr = s ? s.last+' '+s.first : '';
+    if (q && (d.studId+' '+d.category+' '+d.storedName+' '+nameStr).toLowerCase().indexOf(q.toLowerCase()) < 0) return false;
+    if (si && d.studId.toLowerCase().indexOf(si.toLowerCase()) < 0) return false;
+    if (ca && d.category !== ca) return false;
+    return true;
+  });
+  var t = document.getElementById('docTable');
+  if (t) t.innerHTML = renderDocRows(list);
+}
+
+// ════════════════════════════════════════════════════════════════
+// SEARCH PAGE
+// ════════════════════════════════════════════════════════════════
+
+function buildSearchPage() {
+  return '<div class="ph"><div class="ph-left"><h2>Advanced Search</h2><p>Search across all students and documents with smart filters</p></div></div>'+
+    '<div class="filter-row">'+
+      '<strong style="font-size:.78rem;color:var(--ink3);margin-right:.5rem;flex-shrink:0">Quick Filters:</strong>'+
+      '<span class="filter-chip on" onclick="searchFilter(\'all\',this)">All Records</span>'+
+      '<span class="filter-chip" onclick="searchFilter(\'active\',this)">Active Students</span>'+
+      '<span class="filter-chip" onclick="searchFilter(\'docs\',this)">Documents Only</span>'+
+      '<span class="filter-chip" onclick="searchFilter(\'grad\',this)">Graduates</span>'+
+      '<span class="filter-chip" onclick="searchFilter(\'loa\',this)">On Leave</span>'+
+    '</div>'+
+    '<div class="search-bar">'+
+      '<input class="fi" id="adSearchQ" placeholder="Enter search term — student name, ID, course, document type…" style="flex:1;min-width:200px">'+
+      '<select class="fi" id="adSearchType" style="width:165px"><option value="">All Types</option><option value="student">Students</option><option value="document">Documents</option></select>'+
+      '<button class="btn btn-gold" onclick="runSearch()">Search</button>'+
+      '<button class="btn btn-out" onclick="clearSearch()">Clear</button>'+
+    '</div>'+
+    '<div id="searchResults" style="margin-top:.5rem"></div>';
+}
+
+function searchFilter(type, el) {
+  document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('on'); });
+  el.classList.add('on');
+  var q = '';
+  var studList, docList;
+  if (type === 'all') { studList = DB.students; docList = DB.documents; }
+  else if (type === 'active') { studList = DB.students.filter(function(s) { return s.status === 'Active'; }); docList = []; }
+  else if (type === 'docs') { studList = []; docList = DB.documents; }
+  else if (type === 'grad') { studList = DB.students.filter(function(s) { return s.status === 'Graduated'; }); docList = []; }
+  else if (type === 'loa')  { studList = DB.students.filter(function(s) { return s.status === 'LOA'; }); docList = []; }
+  renderSearchResults(studList || [], docList || []);
+}
+
+function runSearch() {
+  var q    = (document.getElementById('adSearchQ') || {}).value || '';
+  var type = (document.getElementById('adSearchType') || {}).value || '';
+  var ql   = q.toLowerCase();
+  var studList = [], docList = [];
+  if (!type || type === 'student') {
+    studList = DB.students.filter(function(s) {
+      return !q || (s.last+' '+s.first+' '+s.id+' '+s.course+' '+s.email).toLowerCase().indexOf(ql) >= 0;
+    });
+  }
+  if (!type || type === 'document') {
+    docList = DB.documents.filter(function(d) {
+      var s = DB.students.find(function(x) { return x.id === d.studId; });
+      var ns = s ? s.last+' '+s.first : '';
+      return !q || (d.studId+' '+d.category+' '+d.storedName+' '+ns).toLowerCase().indexOf(ql) >= 0;
+    });
+  }
+  renderSearchResults(studList, docList);
+  if (q) addActivity('SEARCH', q, 'Search performed');
+}
+
+function clearSearch() {
+  var q = document.getElementById('adSearchQ');
+  if (q) q.value = '';
+  var t = document.getElementById('adSearchType');
+  if (t) t.value = '';
+  document.getElementById('searchResults').innerHTML = '';
+}
+
+function renderSearchResults(students, docs) {
+  var r = document.getElementById('searchResults');
+  if (!r) return;
+  var html = '';
+  if (students.length) {
+    html += '<div class="card" style="margin-bottom:.875rem"><div class="ch"><h3>Students ('+students.length+')</h3></div>'+
+      '<div class="tw"><table><thead><tr><th>ID</th><th>Name</th><th>Course</th><th>Status</th><th></th></tr></thead><tbody>'+
+      students.map(function(s) {
+        return '<tr><td class="mono">'+s.id+'</td><td><strong>'+sanitize(s.last)+', '+sanitize(s.first)+'</strong></td>'+
+          '<td style="font-size:.78rem">'+sanitize(s.course)+'</td><td>'+statusBadge(s.status)+'</td>'+
+          '<td><button class="btn btn-out btn-sm" onclick="navTo(\'student:'+s.id+'\')">View Profile</button></td></tr>';
+      }).join('')+'</tbody></table></div></div>';
+  }
+  if (docs.length) {
+    html += '<div class="card"><div class="ch"><h3>Documents ('+docs.length+')</h3></div>'+
+      '<div class="tw"><table><thead><tr><th>Doc ID</th><th>Student</th><th>Category</th><th>Version</th><th>Date</th><th></th></tr></thead><tbody>'+
+      docs.map(function(d) {
+        var s = DB.students.find(function(x) { return x.id === d.studId; });
+        return '<tr><td class="mono">'+d.id+'</td>'+
+          '<td class="mono" style="font-size:.76rem">'+d.studId+(s?' — '+sanitize(s.last):'')+'</td>'+
+          '<td><span class="badge bg-blue">'+sanitize(d.category)+'</span></td>'+
+          '<td><span class="badge bg-slate">v'+d.version+'</span></td>'+
+          '<td style="font-size:.78rem">'+d.date+'</td>'+
+          '<td><button class="btn btn-out btn-sm" onclick="openViewer(\''+d.id+'\')">👁 View</button></td></tr>';
+      }).join('')+'</tbody></table></div></div>';
+  }
+  if (!students.length && !docs.length) html = '<div style="text-align:center;padding:2rem;color:var(--ink3)">No results found.</div>';
+  r.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════════════════
+// REPORTS PAGE
+// ════════════════════════════════════════════════════════════════
+
+function buildReportsPage() {
+  var rpts = [
+    {title:'Enrollment Summary',    desc:'Total enrollment per course and year level',         ico:'🎓', color:'#2563EB'},
+    {title:'Document Inventory',    desc:'All archived documents with metadata',               ico:'📁', color:'#16A34A'},
+    {title:'Student Status Report', desc:'Active, inactive, LOA, graduated breakdown',         ico:'📊', color:'#D97706'},
+    {title:'Grade Report',          desc:'GPA distribution and academic performance',          ico:'📝', color:'#7C3AED'},
+    {title:'Graduate Roster',       desc:'Complete list of all graduates',                     ico:'🏅', color:'#B8942A'},
+    {title:'Activity Audit Report', desc:'System access and change history summary',           ico:'🕵️', color:'#0891B2'}
+  ];
+  return '<div class="ph"><div class="ph-left"><h2>Reports &amp; Exports</h2><p>Generate downloadable PDF and CSV summaries</p></div></div>'+
+    '<div class="sec-banner">📊 Reports are generated from live data. CSV exports are available for all reports.</div>'+
+    '<div class="rpt-grid">'+rpts.map(function(r) {
+      return '<div class="rpt-card" onclick="generateReport(\''+r.title+'\')">'+
+        '<div class="rpt-top" style="background:'+r.color+'"></div>'+
+        '<div class="rpt-body">'+
+          '<div class="rpt-ico">'+r.ico+'</div>'+
+          '<div style="font-weight:600;color:var(--navy);font-family:\'Playfair Display\',serif;margin-bottom:.25rem">'+r.title+'</div>'+
+          '<div style="font-size:.78rem;color:var(--ink3);margin-bottom:.875rem">'+r.desc+'</div>'+
+          '<div style="display:flex;gap:.35rem">'+
+            '<button class="btn btn-out btn-sm" onclick="event.stopPropagation();printReport(\''+r.title+'\')">🖨 Print</button>'+
+            '<button class="btn btn-gold btn-sm" onclick="event.stopPropagation();generateReport(\''+r.title+'\')">⬇ CSV</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    }).join('')+'</div>';
+}
+
+function generateReport(title) {
+  var rows, filename;
+  if (title === 'Enrollment Summary') {
+    rows = ['Course,Total,Active,Graduated,LOA'];
+    var courses = [...new Set(DB.students.map(function(s) { return s.course; }))];
+    courses.forEach(function(c) {
+      var list = DB.students.filter(function(s) { return s.course === c; });
+      rows.push(['"'+c+'"', list.length, list.filter(function(s){return s.status==='Active'}).length, list.filter(function(s){return s.status==='Graduated'}).length, list.filter(function(s){return s.status==='LOA'}).length].join(','));
+    });
+    filename = 'enrollment_summary.csv';
+  } else if (title === 'Document Inventory') {
+    rows = ['Doc ID,Student ID,Category,Filename,Type,Version,Size,Date,Uploaded By'];
+    DB.documents.forEach(function(d) {
+      rows.push([d.id, d.studId, '"'+d.category+'"', '"'+d.storedName+'"', d.type, d.version, d.size, d.date, d.uploadedBy].join(','));
+    });
+    filename = 'document_inventory.csv';
+  } else if (title === 'Graduate Roster') {
+    rows = ['Student ID,Last Name,First Name,Course,GPA,Enrollment Date'];
+    DB.students.filter(function(s){return s.status==='Graduated'}).forEach(function(s) {
+      rows.push([s.id, s.last, s.first, '"'+s.course+'"', s.gpa, s.enrollDate].join(','));
+    });
+    filename = 'graduate_roster.csv';
+  } else if (title === 'Activity Audit Report') {
+    rows = ['Timestamp,User,Role,Action,Target,Detail'];
+    DB.activity.forEach(function(a) {
+      rows.push(['"'+a.time+'"', a.user, a.role, a.action, '"'+a.target+'"', '"'+a.detail+'"'].join(','));
+    });
+    filename = 'audit_report.csv';
+  } else {
+    rows = ['Student ID,Last Name,First Name,Course,Year,Status,GPA'];
+    DB.students.forEach(function(s) {
+      rows.push([s.id, s.last, s.first, '"'+s.course+'"', s.year, s.status, s.gpa].join(','));
+    });
+    filename = title.toLowerCase().replace(/\s+/g,'_')+'.csv';
+  }
+  dlCSV(rows.join('\n'), filename);
+  addActivity('EXPORT_REPORT', title, 'Report downloaded as CSV');
+  toast('Report exported: '+title, 'ok');
+}
+
+function printReport(title) {
+  toast('Opening print dialog for: '+title, 'ok');
+  window.print();
+}
+
+// ════════════════════════════════════════════════════════════════
+// ACTIVITY LOG PAGE
+// ════════════════════════════════════════════════════════════════
+
+function buildActivityPage() {
+  return '<div class="ph"><div class="ph-left"><h2>Activity Log</h2><p>Complete audit trail of all user actions</p></div>'+
+    '<div class="ph-right">'+
+      '<button class="btn btn-out btn-sm" onclick="generateReport(\'Activity Audit Report\')">⬇ Export CSV</button>'+
+    '</div></div>'+
+    '<div class="card"><div class="tw"><table><thead><tr>'+
+      '<th>Timestamp</th><th>User</th><th>Role</th><th>Action</th><th>Target</th><th>Detail</th>'+
+    '</tr></thead><tbody>'+
+    DB.activity.map(function(a) {
+      return '<tr>'+
+        '<td class="mono" style="font-size:.73rem;white-space:nowrap">'+a.time+'</td>'+
+        '<td><strong>'+sanitize(a.user)+'</strong></td>'+
+        '<td><span class="badge '+(a.role==='Administrator'?'bg-gold':'bg-blue')+'">'+sanitize(a.role)+'</span></td>'+
+        '<td><span class="badge bg-slate" style="font-family:\'DM Mono\',monospace;font-size:.63rem">'+sanitize(a.action)+'</span></td>'+
+        '<td class="mono">'+sanitize(a.target)+'</td>'+
+        '<td style="font-size:.8rem">'+sanitize(a.detail)+'</td>'+
+      '</tr>';
+    }).join('')+
+    '</tbody></table></div></div>';
+}
+
+// ════════════════════════════════════════════════════════════════
+// SETTINGS PAGE
+// ════════════════════════════════════════════════════════════════
+
+function buildSettingsPage() {
+  return '<div class="ph"><div class="ph-left"><h2>System Settings</h2><p>Configure system behavior and security</p></div></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.875rem">'+
+      '<div class="card"><div class="ch"><h3>General Settings</h3></div><div class="cb">'+
+        '<div class="ff"><label>Institution Name</label><input value="State University of Technology" id="instName"></div>'+
+        '<div class="ff"><label>Academic Year</label><input value="2024-2025" id="ay"></div>'+
+        '<div class="ff"><label>Semester</label><select><option>1st Semester</option><option>2nd Semester</option><option>Summer</option></select></div>'+
+        '<div class="ff"><label>Registrar Email</label><input type="email" value="registrar@school.edu"></div>'+
+        '<button class="btn btn-gold" onclick="toast(\'Settings saved\',\'ok\')">Save Settings</button>'+
+      '</div></div>'+
+      '<div class="card"><div class="ch"><h3>Security Settings</h3></div><div class="cb">'+
+        settingToggle('Two-Factor Authentication', 'Require 2FA for all admin accounts', true)+
+        settingToggle('Session Timeout', 'Auto-logout after 30 min inactivity', true)+
+        settingToggle('Audit Logging', 'Log all system access and changes', true)+
+        settingToggle('File Type Restriction', 'Only allow PDF, JPG, PNG uploads', true)+
+        settingToggle('Password Complexity', 'Enforce strong password policy', false)+
+        '<button class="btn btn-navy" style="margin-top:.875rem" onclick="toast(\'Security settings saved\',\'ok\')">Save Security</button>'+
+      '</div></div>'+
+      '<div class="card"><div class="ch"><h3>Backup &amp; Data</h3></div><div class="cb">'+
+        settingToggle('Automatic Daily Backup', 'Backup all records at 2:00 AM', true)+
+        '<div style="background:var(--cream);border-radius:var(--r);padding:.875rem;margin:.875rem 0;font-size:.845rem">'+
+          '<div style="font-weight:500;margin-bottom:.25rem">Last Backup</div>'+
+          '<div style="color:var(--ink3)">April 18, 2026 — 02:03 AM</div>'+
+          '<div style="color:var(--g2);font-size:.78rem;margin-top:.2rem">✓ Completed — 48.3 MB</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:.45rem;flex-wrap:wrap">'+
+          '<button class="btn btn-navy" onclick="toast(\'Backup started…\',\'ok\')">Run Backup Now</button>'+
+          '<button class="btn btn-out" onclick="toast(\'Downloading backup…\',\'ok\')">⬇ Download</button>'+
+          '<button class="btn btn-red" onclick="resetToDemo()" style="margin-left:auto">🗑 Reset to Demo Data</button>'+
+        '</div>'+
+      '</div></div>'+
+      '<div class="card"><div class="ch"><h3>Notifications</h3></div><div class="cb">'+
+        settingToggle('Upload Notifications', 'Notify when new documents are uploaded', true)+
+        settingToggle('Version Conflict Alerts', 'Warn when duplicate document types found', true)+
+        settingToggle('Login Alerts', 'Send alert on suspicious login activity', false)+
+        '<button class="btn btn-navy" style="margin-top:.875rem" onclick="toast(\'Notification settings saved\',\'ok\')">Save</button>'+
+      '</div></div>'+
+    '</div>';
+}
+
+function settingToggle(label, sub, on) {
+  return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.7rem 0;border-bottom:1px solid var(--cream2)">'+
+    '<div><div style="font-size:.875rem;font-weight:500;color:var(--ink)">'+label+'</div><div style="font-size:.76rem;color:var(--ink3)">'+sub+'</div></div>'+
+    '<div onclick="this.classList.toggle(\'on\')" class="tog'+(on?' on':'')+'" style="width:38px;height:21px;background:'+(on?'var(--g2)':'var(--cream3)')+';border-radius:99px;position:relative;cursor:pointer;flex-shrink:0;transition:background .2s">'+
+      '<div style="position:absolute;top:3px;left:'+(on?'18':'3')+'px;width:15px;height:15px;background:#fff;border-radius:50%;transition:left .2s"></div>'+
+    '</div></div>';
+}
+
+// ════════════════════════════════════════════════════════════════
+// USERS PAGE
+// ════════════════════════════════════════════════════════════════
+
+function buildUsersPage() {
+  return '<div class="ph"><div class="ph-left"><h2>User Management</h2><p>Manage staff and administrator accounts</p></div>'+
+    '<div class="ph-right"><button class="btn btn-gold btn-sm" onclick="openM(\'userModal\')">+ Add User</button></div></div>'+
+    '<div class="card"><div class="tw"><table><thead><tr>'+
+      '<th>User ID</th><th>Name</th><th>Username</th><th>Role</th><th>Email</th><th>Last Login</th><th>Status</th><th>Actions</th>'+
+    '</tr></thead><tbody id="usersTable">'+renderUserRows()+'</tbody></table></div></div>';
+}
+
+function renderUserRows() {
+  return DB.users.map(function(u) {
+    return '<tr>'+
+      '<td class="mono">'+u.id+'</td>'+
+      '<td><strong>'+sanitize(u.name)+'</strong></td>'+
+      '<td class="mono">'+sanitize(u.username)+'</td>'+
+      '<td><span class="badge '+(u.role==='admin'?'bg-gold':'bg-blue')+'">'+u.role+'</span></td>'+
+      '<td style="font-size:.79rem">'+sanitize(u.email)+'</td>'+
+      '<td class="mono" style="font-size:.72rem">'+sanitize(u.lastLogin)+'</td>'+
+      '<td>'+(u.active?'<span class="badge bg-green">Active</span>':'<span class="badge bg-red">Inactive</span>')+'</td>'+
+      '<td><div style="display:flex;gap:.3rem">'+
+        '<button class="btn btn-out btn-sm" onclick="toggleUserActive(\''+u.id+'\')">'+
+          (u.active ? '🚫 Deactivate' : '✅ Activate')+
+        '</button>'+
+        (u.id !== SESSION.user.id ? '<button class="btn btn-red btn-sm" onclick="confirmDelete(\'user\',\''+u.id+'\')">🗑</button>' : '')+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function toggleUserActive(id) {
+  var u = DB.users.find(function(x) { return x.id === id; });
+  if (!u) return;
+  u.active = !u.active;
+  var t = document.getElementById('usersTable');
+  if (t) t.innerHTML = renderUserRows();
+  addActivity(u.active ? 'ACTIVATE_USER' : 'DEACTIVATE_USER', u.username, (u.active?'Activated':'Deactivated')+' user '+u.name);
+  saveData();
+  toast('User '+u.name+' '+(u.active?'activated':'deactivated'), u.active?'ok':'warn');
+}
+
+function saveUser() {
+  var name  = document.getElementById('uName').value.trim();
+  var uname = document.getElementById('uUser').value.trim();
+  var pass  = document.getElementById('uPass').value;
+  var role  = document.getElementById('uRole').value;
+  var email = document.getElementById('uEmail').value.trim();
+  if (!name || !uname || !pass) { toast('Name, username, and password are required','err'); return; }
+  if (pass.length < 8 || !/[A-Z]/.test(pass) || !/[0-9]/.test(pass)) { toast('Password must be 8+ chars with uppercase and number','err'); return; }
+  if (DB.users.some(function(u) { return u.username === uname; })) { toast('Username already exists','err'); return; }
+  var id = 'USR-' + String(DB.users.length + 1).padStart(3,'0');
+  DB.users.push({id:id, name:name, username:uname, password:hashPwd(pass), role:role, email:email, active:true, lastLogin:'Never'});
+  closeM('userModal');
+  saveData();
+  navTo('users');
+  addActivity('CREATE_USER', uname, 'Created new '+role+' account: '+name);
+  toast('User account created: '+name,'ok');
+}
+
+// ════════════════════════════════════════════════════════════════
+// STUDENT MODAL
+// ════════════════════════════════════════════════════════════════
+
+var editingStudentId = null;
+
+function openStudentModal() {
+  editingStudentId = null;
+  document.getElementById('studModalTitle').textContent = 'Add New Student';
+  ['sLast','sFirst','sMid','sEmail','sPhone','sSection','sAddr','sId'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('sDob').value = '';
+  openM('studModal');
+}
+
+function openEditStudent(id) {
+  var s = DB.students.find(function(x) { return x.id === id; });
+  if (!s) return;
+  editingStudentId = id;
+  document.getElementById('studModalTitle').textContent = 'Edit Student Record';
+  document.getElementById('sLast').value    = s.last;
+  document.getElementById('sFirst').value   = s.first;
+  document.getElementById('sMid').value     = s.mid;
+  document.getElementById('sEmail').value   = s.email;
+  document.getElementById('sPhone').value   = s.phone || '';
+  document.getElementById('sDob').value     = s.dob;
+  document.getElementById('sCourse').value  = s.course;
+  document.getElementById('sYear').value    = s.year;
+  document.getElementById('sSection').value = s.section;
+  document.getElementById('sStatus').value  = s.status;
+  document.getElementById('sAddr').value    = s.addr;
+  document.getElementById('sId').value      = s.id;
+  openM('studModal');
+}
+
+function saveStudent() {
+  var last  = document.getElementById('sLast').value.trim();
+  var first = document.getElementById('sFirst').value.trim();
+  var email = document.getElementById('sEmail').value.trim();
+  var course= document.getElementById('sCourse').value;
+  if (!last || !first || !email) { toast('Last name, first name, and email are required','err'); return; }
+  if (editingStudentId) {
+    var s = DB.students.find(function(x) { return x.id === editingStudentId; });
+    if (s) {
+      s.last=last; s.first=first; s.mid=document.getElementById('sMid').value;
+      s.email=email; s.phone=document.getElementById('sPhone').value;
+      s.dob=document.getElementById('sDob').value; s.course=course;
+      s.year=document.getElementById('sYear').value; s.section=document.getElementById('sSection').value;
+      s.status=document.getElementById('sStatus').value; s.addr=document.getElementById('sAddr').value;
+    }
+    addActivity('UPDATE_STUDENT', editingStudentId, 'Updated student record: '+last+', '+first);
+    toast('Student record updated','ok');
+  } else {
+    var customId = document.getElementById('sId').value.trim();
+    var newId = customId || genId('STUD');
+    if (DB.students.some(function(x) { return x.id === newId; })) { toast('Student ID already exists','err'); return; }
+    DB.students.push({
+      id:newId, last:last, first:first, mid:document.getElementById('sMid').value,
+      gender:document.getElementById('sGender').value, dob:document.getElementById('sDob').value,
+      email:email, phone:document.getElementById('sPhone').value, course:course,
+      year:document.getElementById('sYear').value, section:document.getElementById('sSection').value,
+      status:document.getElementById('sStatus').value, gpa:'N/A',
+      addr:document.getElementById('sAddr').value, enrollDate:new Date().toISOString().split('T')[0]
+    });
+    addActivity('CREATE_STUDENT', newId, 'Added new student: '+last+', '+first);
+    addNotif('New student added', last+', '+first+' ('+newId+') has been registered.', 'update');
+    toast('Student '+newId+' added','ok');
+  }
+  saveData();
+  closeM('studModal');
+  navTo('students');
+}
+
+// ════════════════════════════════════════════════════════════════
+// DOCUMENT UPLOAD
+// ════════════════════════════════════════════════════════════════
+
+function openUploadModal(prefillStudId) {
+  stagedFiles = [];
+  var studIdInput = document.getElementById('udStudId');
+  studIdInput.value = prefillStudId || '';
+  if (prefillStudId) {
+    studIdInput.readOnly = true;
+    studIdInput.style.background = 'var(--cream2)';
+    studIdInput.style.color = 'var(--ink3)';
+    studIdInput.title = 'Student ID locked — uploading to this student\'s profile';
+  } else {
+    studIdInput.readOnly = false;
+    studIdInput.style.background = '';
+    studIdInput.style.color = '';
+    studIdInput.title = '';
+  }
+  document.getElementById('udNotes').value   = '';
+  document.getElementById('docQueue').innerHTML = '';
+  document.getElementById('docQSum').textContent = '';
+  document.getElementById('docUpBtn').disabled = true;
+  document.getElementById('versionWarning').style.display = 'none';
+  var secSel = document.getElementById('udSecId');
+  secSel.innerHTML = '<option value="">— No section —</option>'+
+    DB.sections.map(function(s){return '<option value="'+s.id+'">'+s.icon+' '+sanitize(s.name)+'</option>';}).join('');
+  updateUploadFolList();
+  if (prefillStudId) previewStudent(prefillStudId);
+  else document.getElementById('udStudPreview').innerHTML = '—';
+  openM('uploadModal');
+}
+
+function updateUploadFolList() {
+  var secId = (document.getElementById('udSecId')||{}).value||'';
+  var folSel = document.getElementById('udFolId');
+  if (!folSel) return;
+  var folders = secId ? DB.folders.filter(function(f){return f.sectionId===secId;}) : DB.folders;
+  folSel.innerHTML = '<option value="">— No folder —</option>'+
+    folders.map(function(f){return '<option value="'+f.id+'">'+f.icon+' '+sanitize(f.name)+'</option>';}).join('');
+}
+
+function previewStudent(sid) {
+  var el = document.getElementById('udStudPreview');
+  if (!el) return;
+  var s = DB.students.find(function(x) { return x.id === sid; });
+  if (s) el.innerHTML = '<span style="color:var(--g2);font-weight:600">✓ '+sanitize(s.last)+', '+sanitize(s.first)+'</span>';
+  else el.innerHTML = sid.length > 3 ? '<span style="color:var(--r2)">Student not found</span>' : '—';
+  checkVersionConflict();
+}
+
+function checkVersionConflict() {
+  var sid = (document.getElementById('udStudId') || {}).value || '';
+  var cat = (document.getElementById('udCat') || {}).value || '';
+  var exists = DB.documents.some(function(d) { return d.studId === sid && d.category === cat; });
+  var w = document.getElementById('versionWarning');
+  if (w) w.style.display = exists ? 'block' : 'none';
+}
+
+function docDrop(e) {
+  e.preventDefault();
+  document.getElementById('docUz').classList.remove('over');
+  stageDocFiles(Array.from(e.dataTransfer.files));
+}
+function docFileSelect(inp) { stageDocFiles(Array.from(inp.files)); inp.value = ''; }
+
+function stageDocFiles(files) {
+  files.slice(0, 10).forEach(function(f) {
+    var err = validateFile(f);
+    if (err) { toast(f.name + ': ' + err, 'err'); return; }
+    if (stagedFiles.some(function(x) { return x.name === f.name && x.size === f.size; })) return;
+    stagedFiles.push(f);
+    renderDocRow(f);
+  });
+  updateDocBtn();
+}
+
+function renderDocRow(f) {
+  var ext  = f.name.split('.').pop().toLowerCase();
+  var icons = {pdf:'📕', jpg:'🖼', jpeg:'🖼', png:'🖼'};
+  var rowId = 'dr_'+f.name.replace(/[^a-zA-Z0-9]/g,'_')+'_'+f.size;
+  var isImg = f.type.indexOf('image/') === 0;
+  var row = document.createElement('div');
+  row.id = rowId; row.className = 'uqr';
+  row.innerHTML =
+    '<span style="font-size:1.1rem;flex-shrink:0">'+(icons[ext]||'📄')+'</span>'+
+    '<div style="flex:1;min-width:0">'+
+      '<div style="font-size:.82rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+sanitize(f.name)+'</div>'+
+      '<div style="font-size:.7rem;color:var(--ink3)">'+fmtSz(f.size)+'</div>'+
+      '<div class="pbar"><div class="pfill" id="pf_'+rowId+'" style="width:0%"></div></div>'+
+    '</div>'+
+    (isImg ? '<div id="th_'+rowId+'" style="width:34px;height:34px;border-radius:5px;overflow:hidden;flex-shrink:0"></div>' : '')+
+    '<button onclick="rmDoc(\''+f.name+'\','+f.size+')" style="background:none;border:none;cursor:pointer;color:var(--ink3);font-size:.82rem;padding:0 .2rem;flex-shrink:0">✕</button>';
+  document.getElementById('docQueue').appendChild(row);
+  if (isImg) {
+    var rd = new FileReader();
+    rd.onload = function(ev) { var th = document.getElementById('th_'+rowId); if(th) th.innerHTML = '<img src="'+ev.target.result+'" style="width:34px;height:34px;object-fit:cover">'; };
+    rd.readAsDataURL(f);
+  }
+  var pct = 0;
+  var iv = setInterval(function() {
+    pct += Math.random() * 22;
+    if (pct >= 100) { pct=100; clearInterval(iv); var pf=document.getElementById('pf_'+rowId); if(pf){pf.style.width='100%';pf.classList.add('done');} }
+    else { var pf=document.getElementById('pf_'+rowId); if(pf)pf.style.width=Math.round(pct)+'%'; }
+  }, 120);
+}
+
+function rmDoc(name, size) {
+  stagedFiles = stagedFiles.filter(function(f) { return !(f.name===name && f.size==size); });
+  var rowId = 'dr_'+name.replace(/[^a-zA-Z0-9]/g,'_')+'_'+size;
+  var el = document.getElementById(rowId);
+  if (el && el.parentNode) el.parentNode.removeChild(el);
+  updateDocBtn();
+}
+
+function updateDocBtn() {
+  var n = stagedFiles.length;
+  var btn = document.getElementById('docUpBtn');
+  if (btn) btn.disabled = n === 0;
+  var sz = stagedFiles.reduce(function(a,f) { return a+f.size; }, 0);
+  var qs = document.getElementById('docQSum');
+  if (qs) qs.textContent = n ? n+' file'+(n>1?'s':'')+' ready · '+fmtSz(sz)+' · PDF & image only' : '';
+}
+
+function uploadDocs() {
+  var sid   = document.getElementById('udStudId').value.trim();
+  var cat   = document.getElementById('udCat').value;
+  var ay    = document.getElementById('udAY').value;
+  var notes = document.getElementById('udNotes').value.trim();
+  var secId = (document.getElementById('udSecId')||{}).value||null;
+  var folId = (document.getElementById('udFolId')||{}).value||null;
+
+  if (!sid)   { toast('Student ID is required','err'); return; }
+  if (!stagedFiles.length) { toast('No files selected','err'); return; }
+
+  var s = DB.students.find(function(x) { return x.id === sid; });
+  if (!s) { toast('Student ID not found in records','err'); return; }
+
+  var total     = stagedFiles.length;
+  var completed = 0;                  // tracks how many readers actually finished
+  var uploadedIds = [];
+  var filesToRead = stagedFiles.slice(); // snapshot before clearing
+
+  filesToRead.forEach(function(f) {
+    var reader = new FileReader();
+
+    reader.onload = function(ev) {
+      var existing   = DB.documents.filter(function(d) { return d.studId === sid && d.category === cat; });
+      var version    = existing.length > 0 ? Math.max.apply(null, existing.map(function(d){return d.version;})) + 1 : 1;
+      var ext        = f.name.split('.').pop().toLowerCase();
+      var storedName = autoName(sid, cat, version, ext);
+      var docId      = 'DOC-' + String(DB.documents.length + 1).padStart(3,'0');
+
+      DB.documents.push({
+        id:           docId,
+        studId:       sid,
+        category:     cat,
+        originalName: f.name,
+        storedName:   storedName,
+        type:         (ext === 'jpg' || ext === 'jpeg') ? 'JPG' : ext.toUpperCase(),
+        size:         fmtSz(f.size),
+        date:         new Date().toISOString().split('T')[0],
+        uploadedBy:   SESSION.user.username,
+        version:      version,
+        verifCode:    genVerifCode(),
+        tags:         [cat.toLowerCase().split(' ')[0]],
+        notes:        notes,
+        dataUrl:      ev.target.result,
+        ay:           ay,
+        sectionId:    secId,
+        folderId:     folId
+      });
+
+      uploadedIds.push(docId);
+      completed++;
+
+      // Only finish when EVERY reader has actually completed
+      if (completed === total) {
+        stagedFiles = [];
+        closeM('uploadModal');
+        buildSectionTree();
+        addActivity('UPLOAD_DOC', uploadedIds.join(', '), 'Uploaded '+total+' file'+(total>1?'s':'')+' ('+cat+') for '+sid);
+        addNotif('Files uploaded', total+' file'+(total>1?'s':'')+' added to '+s.last+', '+s.first, 'upload');
+        toast('✓ '+total+' file'+(total>1?'s':'')+' uploaded to '+s.last+', '+s.first, 'ok');
+        saveData();
+        navTo('student:'+sid);   // ← go straight to student profile
+      }
+    };
+
+    reader.onerror = function() {
+      toast('Failed to read file: '+f.name, 'err');
+      completed++;
+      if (completed === total && uploadedIds.length) {
+        stagedFiles = [];
+        closeM('uploadModal');
+        navTo('student:'+sid);
+      }
+    };
+
+    reader.readAsDataURL(f);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// DOCUMENT VIEWER
+// ════════════════════════════════════════════════════════════════
+
+function openViewer(id) {
+  var d = DB.documents.find(function(x) { return x.id === id; });
+  if (!d) { toast('Document not found','err'); return; }
+  var s = DB.students.find(function(x) { return x.id === d.studId; });
+  document.getElementById('viewerTitle').textContent = d.category + ' — ' + (s ? s.last+', '+s.first : d.studId);
+  document.getElementById('viewerDlBtn').onclick = function() { downloadDoc(id); };
+  var vc = document.getElementById('viewerContent');
+  if (d.dataUrl) {
+    if (d.type === 'PDF') {
+      vc.innerHTML = '<iframe src="'+d.dataUrl+'" style="width:100%;height:460px;border:none"></iframe>';
+    } else {
+      vc.innerHTML = '<img src="'+d.dataUrl+'" style="max-width:100%;max-height:460px;object-fit:contain;padding:1rem">';
+    }
+  } else {
+    vc.innerHTML = '<div style="text-align:center;padding:3rem"><div style="font-size:3.5rem;margin-bottom:1rem">'+(d.type==='PDF'?'📕':'🖼')+'</div><div style="font-weight:600;margin-bottom:.5rem">'+sanitize(d.category)+'</div><div style="font-size:.82rem;color:var(--ink3)">Demo record — upload a real file to preview</div></div>';
+  }
+  document.getElementById('viewerMeta').innerHTML =
+    metaRow('Doc ID', d.id)+metaRow('Student', d.studId+(s?' — '+s.last:''))+
+    metaRow('Category', d.category)+metaRow('File Type', d.type)+
+    metaRow('File Size', d.size)+metaRow('Version', 'v'+d.version)+
+    metaRow('Uploaded', d.date)+metaRow('By', d.uploadedBy)+
+    metaRow('AY', d.ay)+(d.notes?metaRow('Notes', d.notes):'');
+  document.getElementById('viewerQR').innerHTML =
+    '<div class="qr-box">'+
+      '<div style="font-size:.66rem;font-weight:600;text-transform:uppercase;color:var(--ink3);margin-bottom:.5rem">Verification Code</div>'+
+      '<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data='+encodeURIComponent('REGISVAULT:'+d.verifCode)+'" style="border-radius:6px" onerror="this.style.display=\'none\'" width="100" height="100">'+
+      '<div class="qr-code">'+d.verifCode+'</div>'+
+      '<div style="font-size:.68rem;color:var(--ink4);margin-top:.35rem">Scan to verify authenticity</div>'+
+    '</div>';
+  addActivity('VIEW_DOC', id, 'Viewed '+d.category+' for '+d.studId);
+  openM('viewerModal');
+}
+
+function metaRow(label, value) {
+  return '<div style="display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--cream2);font-size:.78rem">'+
+    '<span style="color:var(--ink3)">'+label+'</span>'+
+    '<span style="color:var(--ink);font-weight:500;text-align:right;max-width:130px;word-break:break-all">'+sanitize(String(value))+'</span></div>';
+}
+
+function downloadDoc(id) {
+  var d = DB.documents.find(function(x) { return x.id === id; });
+  if (!d || !d.dataUrl) { toast('File data not available (demo record)','warn'); return; }
+  var a = document.createElement('a');
+  a.href = d.dataUrl; a.download = d.storedName; a.click();
+  addActivity('DOWNLOAD_DOC', id, 'Downloaded '+d.category+' for '+d.studId);
+  toast('Downloading: '+d.storedName,'ok');
+}
+
+function printDoc() {
+  window.print();
+}
+
+// ════════════════════════════════════════════════════════════════
+// VERSION HISTORY
+// ════════════════════════════════════════════════════════════════
+
+function showVersionHistory(studId, category) {
+  var versions = DB.documents.filter(function(d) { return d.studId === studId && d.category === category; }).sort(function(a,b) { return a.version - b.version; });
+  if (!versions.length) { toast('No versions found','warn'); return; }
+  document.getElementById('versionBody').innerHTML =
+    '<div style="font-size:.82rem;color:var(--ink3);margin-bottom:.875rem">Showing all versions of <strong>'+sanitize(category)+'</strong> for student <strong class="mono">'+sanitize(studId)+'</strong></div>'+
+    versions.map(function(d) {
+      return '<div style="display:flex;align-items:center;gap:.875rem;padding:.75rem;background:var(--cream);border-radius:var(--r);margin-bottom:.45rem;border-left:3px solid var(--b2)">'+
+        '<div style="width:36px;height:36px;background:var(--navy);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--gold3);font-weight:700;font-size:.82rem;flex-shrink:0">v'+d.version+'</div>'+
+        '<div style="flex:1">'+
+          '<div style="font-size:.83rem;font-weight:500">'+sanitize(d.storedName)+'</div>'+
+          '<div style="font-size:.73rem;color:var(--ink3)">Uploaded '+d.date+' by '+sanitize(d.uploadedBy)+' · '+d.size+'</div>'+
+          (d.notes?'<div style="font-size:.73rem;color:var(--b2)">'+sanitize(d.notes)+'</div>':'')+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;gap:.3rem">'+
+          '<button class="btn btn-out btn-sm" onclick="openViewer(\''+d.id+'\')">👁 View</button>'+
+          (d.dataUrl ? '<button class="btn btn-out btn-sm" onclick="downloadDoc(\''+d.id+'\')">⬇</button>' : '')+
+        '</div>'+
+      '</div>';
+    }).join('')+
+    '<div style="margin-top:.75rem;padding:.65rem;background:var(--g3);border-radius:var(--r);font-size:.78rem;color:var(--g2)">✓ '+versions.length+' version'+(versions.length>1?'s':'')+' stored · Latest is v'+versions[versions.length-1].version+'</div>';
+  openM('versionModal');
+}
+
+// ════════════════════════════════════════════════════════════════
+// CONFIRM DELETE
+// ════════════════════════════════════════════════════════════════
+
+function confirmDelete(type, id) {
+  if (!requireAdmin()) { toast('Admin access required','err'); return; }
+  var msg = '';
+  if (type === 'student') {
+    var s = DB.students.find(function(x) { return x.id === id; });
+    var dc = DB.documents.filter(function(d) { return d.studId === id; }).length;
+    msg = 'Delete student <strong>'+(s?s.last+', '+s.first:id)+'</strong> ('+id+')? This will also permanently delete '+dc+' linked document'+(dc!==1?'s':'')+'.';
+  } else if (type === 'doc') {
+    var d = DB.documents.find(function(x) { return x.id === id; });
+    msg = 'Delete document <strong>'+(d?d.category:id)+'</strong> ('+id+')? The archived file will be permanently removed.';
+  } else if (type === 'user') {
+    var u = DB.users.find(function(x) { return x.id === id; });
+    msg = 'Delete user account <strong>'+(u?u.name:id)+'</strong>? They will no longer be able to access the system.';
+  }
+  document.getElementById('confirmMsg').innerHTML = msg;
+  document.getElementById('confirmBtn').onclick = function() { doDelete(type, id); };
+  openM('confirmModal');
+}
+
+function doDelete(type, id) {
+  if (type === 'student') {
+    DB.students = DB.students.filter(function(s) { return s.id !== id; });
+    DB.documents = DB.documents.filter(function(d) { return d.studId !== id; });
+    addActivity('DELETE_STUDENT', id, 'Deleted student record and all linked documents');
+    toast('Student deleted','err');
+    closeM('confirmModal');
+    saveData();
+    navTo('students');
+  } else if (type === 'doc') {
+    var doc = DB.documents.find(function(d) { return d.id === id; });
+    var studId = doc ? doc.studId : null;
+    DB.documents = DB.documents.filter(function(d) { return d.id !== id; });
+    addActivity('DELETE_DOC', id, 'Deleted document from archive');
+    toast('Document deleted','err');
+    closeM('confirmModal');
+    buildSectionTree();
+    saveData();
+    // Return to student profile if we know which student it belonged to
+    if (studId) navTo('student:'+studId);
+    else navTo('documents');
+  } else if (type === 'user') {
+    DB.users = DB.users.filter(function(u) { return u.id !== id; });
+    addActivity('DELETE_USER', id, 'Deleted user account');
+    toast('User deleted','err');
+    closeM('confirmModal');
+    saveData();
+    navTo('users');
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// ACTIVITY LOG
+// ════════════════════════════════════════════════════════════════
+
+function addActivity(action, target, detail) {
+  var colorMap = {
+    LOGIN:'g', LOGOUT:'b', CREATE_STUDENT:'b', UPDATE_STUDENT:'a', DELETE_STUDENT:'r',
+    UPLOAD_DOC:'t', VIEW_DOC:'a', DOWNLOAD_DOC:'v', DELETE_DOC:'r', EXPORT_REPORT:'v',
+    SEARCH:'b', CREATE_USER:'g', ACTIVATE_USER:'g', DEACTIVATE_USER:'r', DELETE_USER:'r',
+    VIEW_STUDENT:'a'
+  };
+  var iconMap = {
+    LOGIN:'🔐', LOGOUT:'🚪', CREATE_STUDENT:'🎓', UPDATE_STUDENT:'✏', DELETE_STUDENT:'🗑',
+    UPLOAD_DOC:'📤', VIEW_DOC:'👁', DOWNLOAD_DOC:'⬇', DELETE_DOC:'🗑', EXPORT_REPORT:'📊',
+    SEARCH:'🔍', CREATE_USER:'👤', ACTIVATE_USER:'✅', DEACTIVATE_USER:'🚫', DELETE_USER:'🗑',
+    VIEW_STUDENT:'👁'
+  };
+  DB.activity.unshift({
+    id: 'ACT-'+String(DB.activity.length+1).padStart(3,'0'),
+    user: SESSION.user ? SESSION.user.username : 'system',
+    role: SESSION.role === 'admin' ? 'Administrator' : 'Staff',
+    action: action, target: target, detail: detail,
+    time: new Date().toISOString().replace('T',' ').slice(0,19),
+    icon: iconMap[action] || '📋',
+    color: colorMap[action] || 'b'
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ════════════════════════════════════════════════════════════════
+
+function addNotif(title, body, type) {
+  DB.notifications.unshift({id:'N'+Date.now(), title:title, body:body, time:'just now', read:false, type:type});
+  renderNotifs();
+}
+
+function renderNotifs() {
+  var unread = DB.notifications.filter(function(n) { return !n.read; }).length;
+  var badge = document.getElementById('nBadge');
+  if (badge) badge.style.display = unread ? 'block' : 'none';
+  var list = document.getElementById('nList');
+  if (!list) return;
+  list.innerHTML = DB.notifications.map(function(n, i) {
+    return '<div class="npi '+(n.read?'':'unread')+'" onclick="markRead('+i+')">'+
+      '<div class="npdot" style="background:'+(n.read?'transparent':'#EF4444')+';border:'+(n.read?'1px solid var(--cream3)':'none')+'"></div>'+
+      '<div><div style="font-size:.82rem;font-weight:500;color:var(--navy)">'+sanitize(n.title)+'</div>'+
+      '<div style="font-size:.76rem;color:var(--ink3);margin-top:.1rem">'+sanitize(n.body)+'</div>'+
+      '<div style="font-size:.67rem;color:var(--cream4);margin-top:.15rem">'+n.time+'</div></div>'+
+    '</div>';
+  }).join('');
+}
+
+function markRead(i) { DB.notifications[i].read = true; renderNotifs(); }
+function markAllRead() { DB.notifications.forEach(function(n) { n.read = true; }); renderNotifs(); }
+function toggleNotif() {
+  var p = document.getElementById('notifPanel');
+  p.style.display = p.style.display === 'block' ? 'none' : 'block';
+}
+function closeNotifPanel() {
+  var p = document.getElementById('notifPanel');
+  if (p) p.style.display = 'none';
+}
+document.addEventListener('click', function(e) {
+  var p = document.getElementById('notifPanel');
+  var b = document.getElementById('notifBtn');
+  if (p && b && !p.contains(e.target) && !b.contains(e.target)) p.style.display = 'none';
+});
+
+// ════════════════════════════════════════════════════════════════
+// GLOBAL SEARCH
+// ════════════════════════════════════════════════════════════════
+
+function globalSearch(v) {
+  if (!v || v.length < 2) return;
+}
+
+function goSearch() {
+  var q = document.getElementById('gsearch').value;
+  if (!q) return;
+  navTo('search');
+  setTimeout(function() {
+    var el = document.getElementById('adSearchQ');
+    if (el) { el.value = q; runSearch(); }
+  }, 60);
+}
+
+document.getElementById('gsearch').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') goSearch();
+});
+
+// ════════════════════════════════════════════════════════════════
+// SECTION & FOLDER TREE
+// ════════════════════════════════════════════════════════════════
+
+function buildSectionTree() {
+  var tree = document.getElementById('sectionTree');
+  if (!tree) return;
+  if (!DB.sections.length) { tree.innerHTML = ''; return; }
+  var isAdmin = SESSION.role === 'admin';
+  tree.innerHTML =
+    '<div class="sb-tree-lbl">'+
+      '<span>Sections</span>'+
+      (isAdmin ? '<button class="sb-add-ico" onclick="openSecModal()" title="New Section">+</button>' : '')+
+    '</div>'+
+    DB.sections.map(function(sec) {
+      var folders = DB.folders.filter(function(f) { return f.sectionId === sec.id; });
+      var hasFolders = folders.length > 0;
+      return '<div>'+
+        '<div class="sec-row" id="secrow_'+sec.id+'" onclick="toggleSecTree(\''+sec.id+'\')">'+
+          (hasFolders ? '<span class="sec-toggle" id="secto_'+sec.id+'">▶</span>' : '<span style="width:10px;display:inline-block"></span>')+
+          '<span style="font-size:.8rem">'+sec.icon+'</span>'+
+          '<span class="sec-lbl">'+sanitize(sec.name)+'</span>'+
+          (isAdmin ?
+            '<span class="sec-actions">'+
+              '<button class="sec-action-btn" onclick="event.stopPropagation();openFolModal(\''+sec.id+'\')" title="Add folder">📂</button>'+
+              '<button class="sec-action-btn" onclick="event.stopPropagation();openRename(\'section\',\''+sec.id+'\')" title="Rename">✏</button>'+
+              '<button class="sec-action-btn del" onclick="event.stopPropagation();confirmDeleteSec(\''+sec.id+'\')" title="Delete">✕</button>'+
+            '</span>' : '')+
+        '</div>'+
+        (hasFolders ?
+          '<div class="folder-list" id="follist_'+sec.id+'">'+
+            folders.map(function(f) {
+              var docCount = DB.documents.filter(function(d){return d.folderId===f.id;}).length;
+              return '<div class="fol-row" id="folrow_'+f.id+'" onclick="navTo(\'fol:'+f.id+'\')">'+
+                '<span style="font-size:.78rem">'+f.icon+'</span>'+
+                '<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.78rem">'+sanitize(f.name)+'</span>'+
+                (docCount ? '<span style="font-size:.6rem;font-weight:700;padding:.08rem .32rem;border-radius:99px;background:rgba(212,172,58,.15);color:var(--gold3);flex-shrink:0">'+docCount+'</span>' : '')+
+                (isAdmin ?
+                  '<span class="fol-actions">'+
+                    '<button class="sec-action-btn" onclick="event.stopPropagation();openRename(\'folder\',\''+f.id+'\')" title="Rename">✏</button>'+
+                    '<button class="sec-action-btn del" onclick="event.stopPropagation();confirmDeleteFol(\''+f.id+'\')" title="Delete">✕</button>'+
+                  '</span>' : '')+
+              '</div>';
+            }).join('')+
+          '</div>' : '')+
+      '</div>';
+    }).join('');
+}
+
+function toggleSecTree(secId) {
+  var fl = document.getElementById('follist_'+secId);
+  var to = document.getElementById('secto_'+secId);
+  if (!fl) { navTo('sec:'+secId); return; }
+  var isOpen = fl.classList.toggle('open');
+  if (to) to.classList.toggle('open', isOpen);
+  navTo('sec:'+secId);
+}
+
+// ════════════════════════════════════════════════════════════════
+// SECTIONS PAGE (admin overview)
+// ════════════════════════════════════════════════════════════════
+
+function buildSectionsPage() {
+  return '<div class="ph">'+
+    '<div class="ph-left"><h2>Sections &amp; Folders</h2><p>Organize your document archive into sections and folders</p></div>'+
+    '<div class="ph-right">'+
+      '<button class="btn btn-out btn-sm" onclick="openFolModal(\'\')">+ New Folder</button>'+
+      '<button class="btn btn-gold btn-sm" onclick="openSecModal()">+ New Section</button>'+
+    '</div></div>'+
+    '<div class="sec-banner">🗂️ Sections group related folders. Folders hold documents. Documents are always linked to a student and optionally to a folder.</div>'+
+
+    '<div class="sec-manage-grid" id="secManageGrid">'+renderSectionCards()+'</div>';
+}
+
+function renderSectionCards() {
+  if (!DB.sections.length) return '<div style="grid-column:1/-1;text-align:center;padding:2.5rem;color:var(--ink3)">No sections yet. Click <strong>+ New Section</strong> to create one.</div>';
+  return DB.sections.map(function(sec) {
+    var folders = DB.folders.filter(function(f) { return f.sectionId === sec.id; });
+    var docCount = DB.documents.filter(function(d) { return d.sectionId === sec.id; }).length;
+    return '<div class="sec-manage-card">'+
+      '<div class="smc-top" style="background:'+sec.color+'"></div>'+
+      '<div class="smc-body">'+
+        '<div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.65rem">'+
+          '<div style="width:40px;height:40px;border-radius:10px;background:'+sec.color+'18;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0">'+sec.icon+'</div>'+
+          '<div>'+
+            '<div class="smc-name">'+sanitize(sec.name)+'</div>'+
+            '<div style="font-size:.7rem;color:var(--ink3)">'+folders.length+' folder'+(folders.length!==1?'s':'')+' · '+docCount+' doc'+(docCount!==1?'s':'')+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="smc-desc">'+(sec.desc?sanitize(sec.desc):'—')+'</div>'+
+        '<div style="font-size:.7rem;color:var(--ink3)">Created by '+sanitize(sec.createdBy)+' · '+sanitize(sec.createdAt)+'</div>'+
+        (folders.length ?
+          '<div style="margin-top:.65rem;display:flex;flex-wrap:wrap;gap:.3rem">'+
+            folders.slice(0,4).map(function(f) {
+              return '<span style="font-size:.66rem;padding:.14rem .45rem;border-radius:99px;background:'+f.color+'18;color:'+f.color+';border:1px solid '+f.color+'30">'+f.icon+' '+sanitize(f.name)+'</span>';
+            }).join('')+
+            (folders.length > 4 ? '<span style="font-size:.66rem;color:var(--ink3)">+'+( folders.length-4)+' more</span>' : '')+
+          '</div>' : '')+
+      '</div>'+
+      '<div class="smc-foot">'+
+        '<button class="btn btn-out btn-sm" onclick="navTo(\'sec:'+sec.id+'\')">Open</button>'+
+        '<button class="btn btn-out btn-sm" onclick="openFolModal(\''+sec.id+'\')">+ Folder</button>'+
+        '<button class="btn btn-out btn-sm" onclick="openRename(\'section\',\''+sec.id+'\')">✏ Edit</button>'+
+        '<button class="btn btn-red btn-sm" onclick="confirmDeleteSec(\''+sec.id+'\')">🗑</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════
+// SECTION VIEW (drill-down)
+// ════════════════════════════════════════════════════════════════
+
+function buildSectionView(secId) {
+  var sec = DB.sections.find(function(s) { return s.id === secId; });
+  if (!sec) return '<div style="padding:2rem;color:var(--r2)">Section not found.</div>';
+  var folders = DB.folders.filter(function(f) { return f.sectionId === secId; });
+  var sectionDocs = DB.documents.filter(function(d) { return d.sectionId === secId && !d.folderId; });
+  var isAdmin = requireAdmin();
+
+  return '<div style="margin-bottom:.875rem"><button class="btn btn-out btn-sm" onclick="navTo(\'sections\')">← All Sections</button></div>'+
+    '<div class="sec-header-bar" style="background:'+sec.color+'">'+
+      '<div style="width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0">'+sec.icon+'</div>'+
+      '<div style="flex:1">'+
+        '<div style="font-family:\'Playfair Display\',serif;font-size:1.35rem;color:#fff">'+sanitize(sec.name)+'</div>'+
+        (sec.desc ? '<div style="font-size:.81rem;color:rgba(255,255,255,.55);margin-top:.15rem">'+sanitize(sec.desc)+'</div>' : '')+
+        '<div style="font-size:.72rem;color:rgba(255,255,255,.35);margin-top:.35rem">'+folders.length+' folders · '+DB.documents.filter(function(d){return d.sectionId===secId;}).length+' documents</div>'+
+      '</div>'+
+      (isAdmin ?
+        '<div style="display:flex;gap:.4rem">'+
+          '<button class="btn btn-out btn-sm" onclick="openFolModal(\''+secId+'\')" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff">+ Folder</button>'+
+          '<button class="btn btn-out btn-sm" onclick="openRename(\'section\',\''+secId+'\')" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff">✏ Edit</button>'+
+          '<button class="btn btn-red btn-sm" onclick="confirmDeleteSec(\''+secId+'\')">🗑 Delete</button>'+
+        '</div>' : '')+
+    '</div>'+
+
+    (folders.length ?
+      '<div style="margin-bottom:.875rem"><div style="font-size:.82rem;font-weight:600;color:var(--navy);margin-bottom:.65rem">Folders ('+folders.length+')</div>'+
+      '<div class="folder-grid">'+
+        folders.map(function(f) {
+          var fc = DB.documents.filter(function(d) { return d.folderId === f.id; }).length;
+          return '<div class="fol-card" onclick="navTo(\'fol:'+f.id+'\')">'+
+            '<div class="fol-card-top" style="background:'+f.color+'"></div>'+
+            '<div class="fol-card-body">'+
+              '<div class="fol-card-ico">'+f.icon+'</div>'+
+              '<div class="fol-card-name">'+sanitize(f.name)+'</div>'+
+              '<div class="fol-card-meta">'+(f.desc?sanitize(f.desc)+'<br>':'')+'<strong>'+fc+'</strong> document'+(fc!==1?'s':'')+' · '+sanitize(f.createdAt)+'</div>'+
+            '</div>'+
+            '<div class="fol-card-foot">'+
+              '<button class="btn btn-out btn-sm" onclick="event.stopPropagation();navTo(\'fol:'+f.id+'\')">Open</button>'+
+              (isAdmin ?
+                '<button class="btn btn-out btn-sm" onclick="event.stopPropagation();openRename(\'folder\',\''+f.id+'\')">✏</button>'+
+                '<button class="btn btn-red btn-sm" onclick="event.stopPropagation();confirmDeleteFol(\''+f.id+'\')">🗑</button>' : '')+
+            '</div>'+
+          '</div>';
+        }).join('')+
+      '</div></div>' :
+      '<div style="margin-bottom:.875rem;padding:1.5rem;background:#fff;border:1px solid var(--cream2);border-radius:var(--rlg);text-align:center;color:var(--ink3)">'+
+        'No folders yet. '+(isAdmin?'<a href="#" onclick="openFolModal(\''+secId+'\')" style="color:var(--b2)">Create the first folder.</a>':'')+'</div>')+
+
+    (sectionDocs.length ?
+      '<div class="card"><div class="ch"><h3>Unorganized Documents ('+sectionDocs.length+')</h3><div style="font-size:.78rem;color:var(--ink3)">Not in any folder</div></div>'+
+      '<div class="tw"><table><thead><tr><th>Doc ID</th><th>Student</th><th>Category</th><th>Version</th><th>Date</th><th>Actions</th></tr></thead><tbody>'+
+        sectionDocs.map(function(d) {
+          var s = DB.students.find(function(x){return x.id===d.studId;});
+          return docTableRow(d, s);
+        }).join('')+
+      '</tbody></table></div></div>' : '');
+}
+
+// ════════════════════════════════════════════════════════════════
+// FOLDER VIEW (drill-down)
+// ════════════════════════════════════════════════════════════════
+
+function buildFolderView(folId) {
+  var fol = DB.folders.find(function(f) { return f.id === folId; });
+  if (!fol) return '<div style="padding:2rem;color:var(--r2)">Folder not found.</div>';
+  var sec = DB.sections.find(function(s) { return s.id === fol.sectionId; });
+  var docs = DB.documents.filter(function(d) { return d.folderId === folId; });
+  var isAdmin = requireAdmin();
+
+  return '<div style="margin-bottom:.875rem;display:flex;gap:.45rem;align-items:center">'+
+    '<button class="btn btn-out btn-sm" onclick="navTo(\'sections\')">← Sections</button>'+
+    (sec ? '<span style="color:var(--ink3);font-size:.82rem">/</span><button class="btn btn-out btn-sm" onclick="navTo(\'sec:'+sec.id+'\')">'+sec.icon+' '+sanitize(sec.name)+'</button>' : '')+
+    '<span style="color:var(--ink3);font-size:.82rem">/</span><span style="font-size:.82rem;color:var(--ink3)">'+fol.icon+' '+sanitize(fol.name)+'</span>'+
+  '</div>'+
+
+  '<div class="sec-header-bar" style="background:'+fol.color+'">'+
+    '<div style="width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0">'+fol.icon+'</div>'+
+    '<div style="flex:1">'+
+      '<div style="font-family:\'Playfair Display\',serif;font-size:1.35rem;color:#fff">'+sanitize(fol.name)+'</div>'+
+      (fol.desc ? '<div style="font-size:.81rem;color:rgba(255,255,255,.55);margin-top:.15rem">'+sanitize(fol.desc)+'</div>' : '')+
+      '<div style="font-size:.72rem;color:rgba(255,255,255,.35);margin-top:.35rem">'+(sec?sanitize(sec.name)+' · ':'')+docs.length+' documents · Created '+sanitize(fol.createdAt)+'</div>'+
+    '</div>'+
+    (isAdmin ?
+      '<div style="display:flex;gap:.4rem">'+
+        '<button class="btn btn-out btn-sm" onclick="openM(\'uploadModal\')" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff">+ Upload</button>'+
+        '<button class="btn btn-out btn-sm" onclick="openRename(\'folder\',\''+folId+'\')" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff">✏ Edit</button>'+
+        '<button class="btn btn-red btn-sm" onclick="confirmDeleteFol(\''+folId+'\')">🗑 Delete</button>'+
+      '</div>' : '')+
+  '</div>'+
+
+  '<div class="card">'+
+    '<div class="ch"><h3>Documents in this folder ('+docs.length+')</h3>'+
+      '<div style="display:flex;gap:.4rem">'+
+        '<input class="fi btn-sm" placeholder="Search…" oninput="liveSearchFolderDocs(this.value)" style="width:175px">'+
+        '<button class="btn btn-gold btn-sm" onclick="openM(\'uploadModal\')">+ Upload</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="tw"><table><thead><tr>'+
+      '<th>Doc ID</th><th>Student</th><th>Category</th><th>Filename</th><th>Type</th><th>Ver</th><th>Date</th><th>Actions</th>'+
+    '</tr></thead><tbody id="folDocTable">'+
+      (docs.length ? docs.map(function(d) {
+        var s = DB.students.find(function(x){return x.id===d.studId;});
+        return docTableRow(d, s);
+      }).join('') : '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--ink3)">No documents in this folder yet.</td></tr>')+
+    '</tbody></table></div>'+
+  '</div>';
+}
+
+function liveSearchFolderDocs(v) {
+  var t = document.getElementById('folDocTable');
+  if (!t) return;
+  var folId = (window._curFolId || '');
+  var docs = DB.documents.filter(function(d) {
+    if (folId && d.folderId !== folId) return false;
+    var s = DB.students.find(function(x){return x.id===d.studId;});
+    var str = d.studId+' '+d.category+' '+(s?s.last+' '+s.first:'');
+    return !v || str.toLowerCase().indexOf(v.toLowerCase()) >= 0;
+  });
+  t.innerHTML = docs.length ? docs.map(function(d) {
+    var s = DB.students.find(function(x){return x.id===d.studId;});
+    return docTableRow(d, s);
+  }).join('') : '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--ink3)">No results</td></tr>';
+}
+
+function docTableRow(d, s) {
+  return '<tr>'+
+    '<td class="mono">'+d.id+'</td>'+
+    '<td><span class="mono" style="font-size:.74rem">'+d.studId+'</span>'+(s?'<br><span style="font-size:.72rem;color:var(--ink3)">'+sanitize(s.last)+', '+sanitize(s.first)+'</span>':'')+'</td>'+
+    '<td><span class="badge bg-blue">'+sanitize(d.category)+'</span></td>'+
+    '<td style="font-size:.71rem;font-family:\'DM Mono\',monospace;color:var(--ink3);max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+sanitize(d.storedName)+'">'+sanitize(d.storedName)+'</td>'+
+    '<td><span class="badge '+(d.type==='PDF'?'bg-red':'bg-gold')+'">'+d.type+'</span></td>'+
+    '<td><span class="badge bg-slate">v'+d.version+'</span></td>'+
+    '<td style="font-size:.78rem">'+d.date+'</td>'+
+    '<td><div style="display:flex;gap:.3rem">'+
+      '<button class="btn btn-out btn-sm" onclick="openViewer(\''+d.id+'\')">👁</button>'+
+      (requireAdmin() ? '<button class="btn btn-out btn-sm" onclick="openMoveDoc(\''+d.id+'\')" title="Move to folder">📂</button>' : '')+
+      (d.dataUrl ? '<button class="btn btn-out btn-sm" onclick="downloadDoc(\''+d.id+'\')">⬇</button>' : '')+
+      (requireAdmin() ? '<button class="btn btn-red btn-sm" onclick="confirmDelete(\'doc\',\''+d.id+'\')">🗑</button>' : '')+
+    '</div></td>'+
+  '</tr>';
+}
+
+// ════════════════════════════════════════════════════════════════
+// SECTION MODAL
+// ════════════════════════════════════════════════════════════════
+
+function openSecModal(prefillSecId) {
+  editingSecId = prefillSecId || null;
+  pickedSecIcon = '📁'; pickedSecColor = '#2563EB';
+  document.getElementById('secModalTitle').textContent = editingSecId ? 'Edit Section' : 'Create Section';
+  if (editingSecId) {
+    var s = DB.sections.find(function(x){return x.id===editingSecId;});
+    if (s) {
+      document.getElementById('secName').value = s.name;
+      document.getElementById('secDesc').value = s.desc || '';
+      pickedSecIcon = s.icon; pickedSecColor = s.color;
+    }
+  } else {
+    document.getElementById('secName').value = '';
+    document.getElementById('secDesc').value = '';
+  }
+  buildPickerUI('secIconPicker', ICONS_LIST, pickedSecIcon, function(ico) { pickedSecIcon = ico; }, 'sec');
+  buildColorPickerUI('secColorPicker', COLORS_LIST, pickedSecColor, function(c) { pickedSecColor = c; }, 'sec');
+  openM('secModal');
+}
+
+function saveSectionData() {
+  var name = document.getElementById('secName').value.trim();
+  if (!name) { toast('Section name is required','err'); return; }
+  if (editingSecId) {
+    var s = DB.sections.find(function(x){return x.id===editingSecId;});
+    if (s) { s.name=name; s.desc=document.getElementById('secDesc').value.trim(); s.icon=pickedSecIcon; s.color=pickedSecColor; }
+    addActivity('EDIT_SECTION', editingSecId, 'Renamed to: '+name);
+    toast('Section updated','ok');
+  } else {
+    var id = 'SEC-'+String(DB.sections.length+1).padStart(3,'0');
+    DB.sections.push({id:id, name:name, icon:pickedSecIcon, color:pickedSecColor, desc:document.getElementById('secDesc').value.trim(), createdBy:SESSION.user.username, createdAt:new Date().toISOString().split('T')[0]});
+    addActivity('CREATE_SECTION', id, 'Created section: '+name);
+    toast('Section "'+name+'" created','ok');
+  }
+  closeM('secModal');
+  buildSectionTree();
+  saveData();
+  navTo('sections');
+}
+
+// ════════════════════════════════════════════════════════════════
+// FOLDER MODAL
+// ════════════════════════════════════════════════════════════════
+
+function openFolModal(prefillSecId) {
+  editingFolId = null;
+  pickedFolIcon = '📂'; pickedFolColor = '#16A34A';
+  document.getElementById('folModalTitle').textContent = 'Create Folder';
+  document.getElementById('folName').value = '';
+  document.getElementById('folDesc').value = '';
+  var secSel = document.getElementById('folSecId');
+  secSel.innerHTML = DB.sections.map(function(s) {
+    return '<option value="'+s.id+'"'+(s.id===prefillSecId?' selected':'')+'>'+s.icon+' '+sanitize(s.name)+'</option>';
+  }).join('');
+  if (!DB.sections.length) secSel.innerHTML = '<option value="">No sections yet — create one first</option>';
+  buildPickerUI('folIconPicker', ICONS_LIST, pickedFolIcon, function(ico) { pickedFolIcon = ico; }, 'fol');
+  buildColorPickerUI('folColorPicker', COLORS_LIST, pickedFolColor, function(c) { pickedFolColor = c; }, 'fol');
+  openM('folModal');
+}
+
+function openEditFolModal(folId) {
+  var f = DB.folders.find(function(x){return x.id===folId;});
+  if (!f) return;
+  editingFolId = folId;
+  pickedFolIcon = f.icon; pickedFolColor = f.color;
+  document.getElementById('folModalTitle').textContent = 'Edit Folder';
+  document.getElementById('folName').value = f.name;
+  document.getElementById('folDesc').value = f.desc || '';
+  var secSel = document.getElementById('folSecId');
+  secSel.innerHTML = DB.sections.map(function(s) {
+    return '<option value="'+s.id+'"'+(s.id===f.sectionId?' selected':'')+'>'+s.icon+' '+sanitize(s.name)+'</option>';
+  }).join('');
+  buildPickerUI('folIconPicker', ICONS_LIST, pickedFolIcon, function(ico) { pickedFolIcon = ico; }, 'fol');
+  buildColorPickerUI('folColorPicker', COLORS_LIST, pickedFolColor, function(c) { pickedFolColor = c; }, 'fol');
+  openM('folModal');
+}
+
+function saveFolderData() {
+  var name  = document.getElementById('folName').value.trim();
+  var secId = document.getElementById('folSecId').value;
+  if (!name) { toast('Folder name is required','err'); return; }
+  if (!secId) { toast('Please select a parent section','err'); return; }
+  if (editingFolId) {
+    var f = DB.folders.find(function(x){return x.id===editingFolId;});
+    if (f) { f.name=name; f.desc=document.getElementById('folDesc').value.trim(); f.sectionId=secId; f.icon=pickedFolIcon; f.color=pickedFolColor; }
+    addActivity('EDIT_FOLDER', editingFolId, 'Renamed to: '+name);
+    toast('Folder updated','ok');
+  } else {
+    var id = 'FOL-'+String(DB.folders.length+1).padStart(3,'0');
+    DB.folders.push({id:id, sectionId:secId, name:name, icon:pickedFolIcon, color:pickedFolColor, desc:document.getElementById('folDesc').value.trim(), createdBy:SESSION.user.username, createdAt:new Date().toISOString().split('T')[0]});
+    addActivity('CREATE_FOLDER', id, 'Created folder "'+name+'" in section '+secId);
+    toast('Folder "'+name+'" created','ok');
+  }
+  closeM('folModal');
+  buildSectionTree();
+  saveData();
+  navTo('sections');
+}
+
+// ════════════════════════════════════════════════════════════════
+// RENAME MODAL
+// ════════════════════════════════════════════════════════════════
+
+function openRename(type, id) {
+  renameType = type; renameTargetId = id;
+  var current = type === 'section'
+    ? DB.sections.find(function(x){return x.id===id;})
+    : DB.folders.find(function(x){return x.id===id;});
+  document.getElementById('renameTitle').textContent = 'Edit ' + (type === 'section' ? 'Section' : 'Folder');
+  document.getElementById('renameName').value = current ? current.name : '';
+  document.getElementById('renameDesc').value = current ? (current.desc||'') : '';
+  openM('renameModal');
+}
+
+function doRename() {
+  var name = document.getElementById('renameName').value.trim();
+  var desc = document.getElementById('renameDesc').value.trim();
+  if (!name) { toast('Name is required','err'); return; }
+  if (renameType === 'section') {
+    var s = DB.sections.find(function(x){return x.id===renameTargetId;});
+    if (s) { s.name=name; s.desc=desc; }
+    addActivity('EDIT_SECTION', renameTargetId, 'Updated: '+name);
+  } else {
+    var f = DB.folders.find(function(x){return x.id===renameTargetId;});
+    if (f) { f.name=name; f.desc=desc; }
+    addActivity('EDIT_FOLDER', renameTargetId, 'Updated: '+name);
+  }
+  closeM('renameModal');
+  buildSectionTree();
+  saveData();
+  toast('Updated successfully','ok');
+  navTo(renameType==='section' ? 'sec:'+renameTargetId : 'fol:'+renameTargetId);
+}
+
+// ════════════════════════════════════════════════════════════════
+// MOVE DOCUMENT TO FOLDER
+// ════════════════════════════════════════════════════════════════
+
+function openMoveDoc(docId) {
+  movingDocId = docId;
+  var secSel = document.getElementById('moveSecId');
+  secSel.innerHTML = '<option value="">— No section —</option>'+
+    DB.sections.map(function(s){return '<option value="'+s.id+'">'+s.icon+' '+sanitize(s.name)+'</option>';}).join('');
+  updateMoveFolderList();
+  openM('moveDocModal');
+}
+
+function updateMoveFolderList() {
+  var secId = document.getElementById('moveSecId').value;
+  var folSel = document.getElementById('moveFolId');
+  var folders = secId ? DB.folders.filter(function(f){return f.sectionId===secId;}) : DB.folders;
+  folSel.innerHTML = '<option value="">— No folder —</option>'+
+    folders.map(function(f){return '<option value="'+f.id+'">'+f.icon+' '+sanitize(f.name)+'</option>';}).join('');
+}
+
+function doMoveDoc() {
+  var d = DB.documents.find(function(x){return x.id===movingDocId;});
+  if (!d) { toast('Document not found','err'); return; }
+  d.sectionId = document.getElementById('moveSecId').value || null;
+  d.folderId  = document.getElementById('moveFolId').value || null;
+  closeM('moveDocModal');
+  buildSectionTree();
+  saveData();
+  addActivity('MOVE_DOC', d.id, 'Moved to folder '+(d.folderId||'none'));
+  toast('Document moved','ok');
+  navTo('documents');
+}
+
+// ════════════════════════════════════════════════════════════════
+// DELETE SECTION / FOLDER
+// ════════════════════════════════════════════════════════════════
+
+function confirmDeleteSec(secId) {
+  if (!requireAdmin()) { toast('Admin access required','err'); return; }
+  var sec = DB.sections.find(function(x){return x.id===secId;});
+  if (!sec) return;
+  var fCount = DB.folders.filter(function(f){return f.sectionId===secId;}).length;
+  var dCount = DB.documents.filter(function(d){return d.sectionId===secId;}).length;
+  document.getElementById('confirmMsg').innerHTML = 'Delete section <strong>'+sanitize(sec.name)+'</strong>? This will remove '+fCount+' folder'+(fCount!==1?'s':'')+'. The '+dCount+' document'+(dCount!==1?'s':'')+' inside will <em>not</em> be deleted — they will become unorganized.';
+  document.getElementById('confirmBtn').onclick = function() { doDeleteSec(secId); };
+  openM('confirmModal');
+}
+
+function doDeleteSec(secId) {
+  DB.documents.forEach(function(d){if(d.sectionId===secId){d.sectionId=null;d.folderId=null;}});
+  DB.folders = DB.folders.filter(function(f){return f.sectionId!==secId;});
+  DB.sections = DB.sections.filter(function(s){return s.id!==secId;});
+  closeM('confirmModal');
+  buildSectionTree();
+  saveData();
+  addActivity('DELETE_SECTION', secId, 'Deleted section and all its folders');
+  toast('Section deleted','err');
+  navTo('sections');
+}
+
+function confirmDeleteFol(folId) {
+  if (!requireAdmin()) { toast('Admin access required','err'); return; }
+  var fol = DB.folders.find(function(x){return x.id===folId;});
+  if (!fol) return;
+  var dCount = DB.documents.filter(function(d){return d.folderId===folId;}).length;
+  document.getElementById('confirmMsg').innerHTML = 'Delete folder <strong>'+sanitize(fol.name)+'</strong>? The '+dCount+' document'+(dCount!==1?'s':'')+' inside will become unorganized (not deleted).';
+  document.getElementById('confirmBtn').onclick = function() { doDeleteFol(folId); };
+  openM('confirmModal');
+}
+
+function doDeleteFol(folId) {
+  DB.documents.forEach(function(d){if(d.folderId===folId){d.folderId=null;}});
+  DB.folders = DB.folders.filter(function(f){return f.id!==folId;});
+  closeM('confirmModal');
+  buildSectionTree();
+  saveData();
+  addActivity('DELETE_FOLDER', folId, 'Deleted folder');
+  toast('Folder deleted','err');
+  navTo('sections');
+}
+
+// ════════════════════════════════════════════════════════════════
+// ICON / COLOR PICKER UI
+// ════════════════════════════════════════════════════════════════
+
+function buildPickerUI(containerId, icons, selected, onPick, ns) {
+  var c = document.getElementById(containerId);
+  if (!c) return;
+  c.innerHTML = icons.map(function(ico) {
+    return '<div onclick="pickIconUI(\''+ns+'\',\''+ico+'\',\''+containerId+'\')" style="width:30px;height:30px;border:1px solid '+(ico===selected?'var(--gold2)':'var(--cream3)')+';border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.95rem;background:'+(ico===selected?'var(--gold4)':'#fff')+';transition:all .15s">'+ico+'</div>';
+  }).join('');
+  if (ns==='sec') window._secIconCb=onPick;
+  else window._folIconCb=onPick;
+}
+
+function pickIconUI(ns, ico, containerId) {
+  if (ns==='sec') { pickedSecIcon=ico; if(window._secIconCb) window._secIconCb(ico); buildPickerUI(containerId, ICONS_LIST, ico, window._secIconCb, ns); }
+  else { pickedFolIcon=ico; if(window._folIconCb) window._folIconCb(ico); buildPickerUI(containerId, ICONS_LIST, ico, window._folIconCb, ns); }
+}
+
+function buildColorPickerUI(containerId, colors, selected, onPick, ns) {
+  var c = document.getElementById(containerId);
+  if (!c) return;
+  c.innerHTML = colors.map(function(col) {
+    return '<div onclick="pickColorUI(\''+ns+'\',\''+col+'\',\''+containerId+'\')" style="width:26px;height:26px;border-radius:50%;background:'+col+';cursor:pointer;border:3px solid '+(col===selected?'var(--ink)':'transparent')+';transition:border .15s"></div>';
+  }).join('');
+  if (ns==='sec') window._secColorCb=onPick;
+  else window._folColorCb=onPick;
+}
+
+function pickColorUI(ns, col, containerId) {
+  if (ns==='sec') { pickedSecColor=col; if(window._secColorCb) window._secColorCb(col); buildColorPickerUI(containerId, COLORS_LIST, col, window._secColorCb, ns); }
+  else { pickedFolColor=col; if(window._folColorCb) window._folColorCb(col); buildColorPickerUI(containerId, COLORS_LIST, col, window._folColorCb, ns); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// UPLOAD MODAL — ALSO ASSIGN SECTION/FOLDER
+// ════════════════════════════════════════════════════════════════
+
+function exportStudentsCSV() {
+  var rows = ['Student ID,Last Name,First Name,Middle Name,Gender,DOB,Email,Phone,Course,Year,Section,Status,GPA,Enroll Date'];
+  DB.students.forEach(function(s) {
+    rows.push([s.id,s.last,s.first,s.mid,s.gender,s.dob,s.email,s.phone||'','"'+s.course+'"',s.year,s.section,s.status,s.gpa,s.enrollDate].join(','));
+  });
+  dlCSV(rows.join('\n'), 'students_'+new Date().toISOString().split('T')[0]+'.csv');
+  addActivity('EXPORT_REPORT', 'Students CSV', 'Exported all student records');
+  toast('Students exported','ok');
+}
+
+function exportDocsCSV() {
+  var rows = ['Doc ID,Student ID,Category,Stored Filename,Type,Version,Size,Date,By,AY'];
+  DB.documents.forEach(function(d) {
+    rows.push([d.id,d.studId,'"'+d.category+'"','"'+d.storedName+'"',d.type,d.version,d.size,d.date,d.uploadedBy,d.ay].join(','));
+  });
+  dlCSV(rows.join('\n'), 'documents_'+new Date().toISOString().split('T')[0]+'.csv');
+  addActivity('EXPORT_REPORT', 'Documents CSV', 'Exported document inventory');
+  toast('Documents exported','ok');
+}
+
+// ════════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════════
+
+function statusBadge(status) {
+  var map = {Active:'bg-green',Inactive:'bg-red',Graduated:'bg-gold',LOA:'bg-amber',Dropped:'bg-red'};
+  var colors = {Active:'#16A34A',Inactive:'#B91C1C',Graduated:'#B8942A',LOA:'#D97706',Dropped:'#B91C1C'};
+  return '<span class="badge '+(map[status]||'bg-slate')+'" style="background:'+(colors[status]||'var(--cream2)')+'18;color:'+(colors[status]||'var(--ink3)')+'">'+sanitize(status)+'</span>';
+}
+
+function openM(id) { document.getElementById(id).classList.add('open'); }
+function closeM(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.mo').forEach(function(o) {
+  o.addEventListener('click', function(e) { if (e.target === o) o.classList.remove('open'); });
+});
+
+var toastId = 0;
+function toast(msg, type) {
+  type = type || 'ok';
+  var icons = {ok:'✅', err:'❌', warn:'⚠️', info:'ℹ️'};
+  
+  // Limit max visible toasts to 3
+  var container = document.getElementById('tc');
+  var existing = container.querySelectorAll('.toast');
+  if (existing.length >= 3) {
+    // Remove oldest
+    var oldest = existing[0];
+    oldest.classList.remove('show');
+    setTimeout(function() { if(oldest.parentNode) oldest.parentNode.removeChild(oldest); }, 320);
+  }
+  
+  var d = document.createElement('div');
+  d.className = 'toast ' + type;
+  d.innerHTML = 
+    '<span class="toast-icon">'+(icons[type]||icons.info)+'</span>'+
+    '<span class="toast-msg">'+sanitize(msg)+'</span>'+
+    '<button class="toast-close" onclick="dismissToast(this)" aria-label="Close">✕</button>';
+  
+  container.appendChild(d);
+  
+  // Show with slight delay for animation
+  setTimeout(function() { d.classList.add('show'); }, 10);
+  
+  // Auto-hide after 4.5 seconds (increased from 3.2s)
+  d.autoHideTimer = setTimeout(function() { 
+    d.classList.remove('show'); 
+    setTimeout(function() { 
+      if(d.parentNode) d.parentNode.removeChild(d); 
+    }, 350); 
+  }, 4500);
+}
+
+function dismissToast(btn) {
+  var toast = btn.closest('.toast');
+  if (!toast) return;
+  
+  // Clear auto-hide timer
+  if (toast.autoHideTimer) clearTimeout(toast.autoHideTimer);
+  
+  // Remove
+  toast.classList.remove('show');
+  setTimeout(function() { 
+    if(toast.parentNode) toast.parentNode.removeChild(toast); 
+  }, 350);
+}
+
+function fmtSz(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1024*1024) return (b/1024).toFixed(1) + ' KB';
+  return (b/1024/1024).toFixed(2) + ' MB';
+}
+
+// ════════════════════════════════════════════════════════════════
+// MOBILE SIDEBAR
+// ════════════════════════════════════════════════════════════════
+
+function toggleSidebar() {
+  var sb  = document.querySelector('.sidebar');
+  var ov  = document.getElementById('sbOverlay');
+  var btn = document.getElementById('hamburgerBtn');
+  var isOpen = sb.classList.toggle('open');
+  ov.classList.toggle('show', isOpen);
+  btn.classList.toggle('open', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+
+function closeSidebar() {
+  var sb  = document.querySelector('.sidebar');
+  var ov  = document.getElementById('sbOverlay');
+  var btn = document.getElementById('hamburgerBtn');
+  sb.classList.remove('open');
+  ov.classList.remove('show');
+  btn.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function dlCSV(content, name) {
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(content);
+  a.download = name; a.click();
+}
+</script>
+</body>
+</html>
